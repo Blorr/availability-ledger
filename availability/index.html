@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Availability Ledger</title>
+<style>
+    :root{
+        --wood-dark:#2a1810;
+        --wood-mid:#5a3820;
+        --wood-light:#8a5c33;
+        --gold:#d6ab60;
+        --gold-bright:#f2d79a;
+        --parch:#eadcbb;
+        --parch-dark:#dcc79c;
+        --ink:#432c15;
+        --emerald:#3fbf6f;
+        --amber:#e0a92a;
+        --crimson:#c94b3a;
+    }
+
+    *{ margin:0; padding:0; box-sizing:border-box; }
+
+    body{
+        font-family:'Palatino Linotype','Book Antiqua',Palatino,Georgia,'Times New Roman',serif;
+        color:var(--gold-bright);
+        min-height:100vh;
+        padding:26px 16px 70px;
+        background-color:#3a2314;
+        background-image:
+            radial-gradient(ellipse at 50% -12%, rgba(255,196,110,.20), transparent 62%),
+            repeating-linear-gradient(90deg,
+                rgba(0,0,0,.40) 0 2px,
+                rgba(124,82,48,.50) 2px 134px,
+                rgba(86,55,31,.62) 135px 140px),
+            repeating-linear-gradient(91deg,
+                rgba(255,255,255,.035) 0 1px,
+                rgba(0,0,0,.055) 1px 4px,
+                rgba(255,255,255,.018) 4px 7px),
+            linear-gradient(180deg,#4a2d19,#2a1810);
+        background-attachment:fixed;
+    }
+
+    .container{ max-width:1180px; margin:0 auto; }
+
+    /* ---------- Heading ---------- */
+    header{ text-align:center; margin-bottom:26px; }
+
+    h1{
+        font-size:clamp(1.7rem,4.2vw,2.7rem);
+        letter-spacing:.07em;
+        text-transform:uppercase;
+        color:var(--gold-bright);
+        text-shadow:
+            0 1px 0 rgba(43,24,12,.95),
+            0 -1px 0 rgba(255,244,214,.35),
+            0 4px 10px rgba(0,0,0,.65);
+    }
+
+    .subtitle{
+        margin-top:8px;
+        font-size:.98rem;
+        font-style:italic;
+        color:rgba(232,205,158,.78);
+    }
+
+    .ornament{
+        display:flex; align-items:center; justify-content:center;
+        gap:12px; margin:16px auto 0; max-width:420px;
+        color:var(--gold);
+    }
+    .ornament span{ flex:1; height:2px; border-radius:2px;
+        background:linear-gradient(90deg,transparent,rgba(214,171,96,.75),transparent); }
+    .ornament b{ font-size:1rem; letter-spacing:.2em; }
+
+    /* ---------- Connection badge ---------- */
+    .connection-status{
+        position:fixed; top:18px; right:18px; z-index:900;
+        padding:8px 18px;
+        border-radius:22px;
+        font-size:.8rem; font-weight:700; letter-spacing:.08em;
+        text-transform:uppercase;
+        border:2px solid rgba(0,0,0,.55);
+        box-shadow:inset 0 1px 0 rgba(255,235,190,.35), 0 6px 16px rgba(0,0,0,.55);
+        color:#2a1810;
+    }
+    .connection-status.connected{ background:linear-gradient(180deg,#8fe0a8,#3fbf6f); }
+    .connection-status.disconnected{ background:linear-gradient(180deg,#f0a396,#c94b3a); color:#fff6ef; }
+    .connection-status.loading{ background:linear-gradient(180deg,#f5dd9e,#d6ab60); }
+
+    /* ---------- Carved wood panels ---------- */
+    .panel{
+        position:relative;
+        border-radius:16px;
+        border:4px solid #33200f;
+        padding:24px;
+        margin-bottom:22px;
+        background-color:#5a3820;
+        background-image:
+            repeating-linear-gradient(88deg,
+                rgba(0,0,0,.10) 0 1px,
+                rgba(255,226,178,.030) 1px 3px,
+                rgba(0,0,0,.065) 3px 6px),
+            linear-gradient(180deg,#7d5231,#5c3a20 56%,#4a2d19);
+        box-shadow:
+            inset 0 0 0 2px rgba(169,116,63,.85),
+            inset 0 0 26px rgba(0,0,0,.45),
+            0 14px 30px rgba(0,0,0,.55);
+    }
+
+    .panel::before{
+        content:"";
+        position:absolute; inset:7px;
+        border:1px dashed rgba(230,192,120,.30);
+        border-radius:11px;
+        pointer-events:none;
+    }
+
+    .panel::after{
+        content:"";
+        position:absolute; inset:0; border-radius:inherit;
+        pointer-events:none;
+        background-image:
+            radial-gradient(circle at 15px 15px, rgba(245,222,168,.9) 0 2.5px, rgba(0,0,0,.55) 2.5px 4.5px, transparent 4.5px),
+            radial-gradient(circle at calc(100% - 15px) 15px, rgba(245,222,168,.9) 0 2.5px, rgba(0,0,0,.55) 2.5px 4.5px, transparent 4.5px),
+            radial-gradient(circle at 15px calc(100% - 15px), rgba(245,222,168,.9) 0 2.5px, rgba(0,0,0,.55) 2.5px 4.5px, transparent 4.5px),
+            radial-gradient(circle at calc(100% - 15px) calc(100% - 15px), rgba(245,222,168,.9) 0 2.5px, rgba(0,0,0,.55) 2.5px 4.5px, transparent 4.5px);
+    }
+
+    .panel > *{ position:relative; z-index:1; }
+
+    /* ---------- Roster / name entry ---------- */
+    .roster-label{
+        font-size:.82rem; letter-spacing:.16em; text-transform:uppercase;
+        color:rgba(238,213,168,.72); margin-bottom:12px;
+    }
+
+    .user-input-group{ display:flex; gap:14px; align-items:center; flex-wrap:wrap; }
+
+    .user-input-group input{
+        flex:1; min-width:210px;
+        padding:13px 18px;
+        font-family:inherit; font-size:1rem;
+        color:var(--ink);
+        background-color:var(--parch);
+        background-image:linear-gradient(180deg,#f1e5c8,#dcc79c);
+        border:2px solid #8a6a3f;
+        border-radius:9px;
+        box-shadow:inset 0 3px 8px rgba(66,42,20,.35);
+    }
+    .user-input-group input::placeholder{ color:rgba(67,44,21,.55); font-style:italic; }
+    .user-input-group input:focus{
+        outline:none;
+        border-color:var(--gold);
+        box-shadow:inset 0 3px 8px rgba(66,42,20,.35), 0 0 0 3px rgba(214,171,96,.35);
+    }
+
+    .btn{
+        font-family:inherit;
+        font-size:.95rem; font-weight:700; letter-spacing:.05em;
+        padding:13px 26px;
+        cursor:pointer;
+        color:#ffeecb;
+        text-shadow:0 1px 2px rgba(0,0,0,.65);
+        background-color:var(--wood-light);
+        background-image:linear-gradient(180deg,#94643a,#5c3a20);
+        border:2px solid #2a1810;
+        border-radius:9px;
+        box-shadow:
+            inset 0 1px 0 rgba(255,224,175,.38),
+            inset 0 -4px 8px rgba(0,0,0,.42),
+            0 5px 12px rgba(0,0,0,.5);
+        transition:transform .15s, box-shadow .15s, filter .15s;
+    }
+    .btn:hover:not(:disabled){ transform:translateY(-2px); filter:brightness(1.1);
+        box-shadow:inset 0 1px 0 rgba(255,224,175,.45), inset 0 -4px 8px rgba(0,0,0,.42), 0 9px 18px rgba(0,0,0,.55); }
+    .btn:active:not(:disabled){ transform:translateY(0); }
+    .btn:disabled{ opacity:.45; cursor:not-allowed; }
+
+    .btn-small{
+        padding:6px 14px; font-size:.76rem;
+        background-image:linear-gradient(180deg,#7d6047,#4c3624);
+    }
+
+    .active-user-display{
+        display:none;
+        margin-top:16px;
+        padding:14px 18px;
+        border-radius:10px;
+        border:2px solid #8a6a3f;
+        background-color:var(--parch);
+        background-image:linear-gradient(180deg,#f1e5c8,#ddc99f);
+        color:var(--ink);
+        font-size:.95rem;
+        box-shadow:inset 0 3px 10px rgba(66,42,20,.28);
+        display:none;
+        align-items:center;
+        flex-wrap:wrap;
+        gap:10px;
+    }
+    .active-user-display.show{ display:flex; }
+    .active-user-display strong{ font-size:1.15rem; letter-spacing:.03em; }
+
+    /* ---------- Legend ---------- */
+    .legend{
+        display:flex; justify-content:center; gap:14px;
+        margin-bottom:22px; flex-wrap:wrap;
+    }
+
+    .legend-item{
+        display:flex; align-items:center; gap:9px;
+        padding:9px 18px;
+        font-size:.83rem; letter-spacing:.06em;
+        border-radius:22px;
+        border:2px solid #33200f;
+        color:#ffeecb;
+        background-image:linear-gradient(180deg,#7d5231,#4f3119);
+        box-shadow:inset 0 1px 0 rgba(255,224,175,.28), 0 5px 12px rgba(0,0,0,.45);
+    }
+
+    .gem{
+        width:17px; height:17px; border-radius:50%;
+        border:1px solid rgba(0,0,0,.5);
+        box-shadow:inset 0 -2px 4px rgba(0,0,0,.45), inset 0 2px 3px rgba(255,255,255,.5), 0 0 8px rgba(0,0,0,.4);
+    }
+    .gem.available{ background:radial-gradient(circle at 34% 28%, #b6f2cb, #3fbf6f 60%, #1d7a45); }
+    .gem.pending{ background:radial-gradient(circle at 34% 28%, #ffeeb0, #e0a92a 60%, #9c6c10); }
+    .gem.unavailable{ background:radial-gradient(circle at 34% 28%, #ffc0b2, #c94b3a 60%, #7d271c); }
+
+    /* ---------- Layout with coordination panel ---------- */
+    .main-layout{
+        display:grid;
+        grid-template-columns: 1fr 340px;
+        gap:22px;
+        align-items:start;
+    }
+
+    @media (max-width:980px){
+        .main-layout{ grid-template-columns:1fr; }
+    }
+
+    /* ---------- Left side: Calendars + Selection ---------- */
+    .left-column{ display:flex; flex-direction:column; gap:22px; }
+
+    /* ---------- Right side: Coordination panel ---------- */
+    .coord-panel{
+        position:sticky;
+        top:26px;
+    }
+
+    .coord-header{
+        font-size:1.1rem;
+        letter-spacing:.12em;
+        text-transform:uppercase;
+        color:var(--gold-bright);
+        text-shadow:0 1px 0 rgba(43,24,12,.9), 0 3px 7px rgba(0,0,0,.6);
+        margin-bottom:18px;
+        text-align:center;
+    }
+
+    .coord-section{
+        margin-bottom:22px;
+        border-top:2px solid rgba(214,171,96,.3);
+        padding-top:18px;
+    }
+
+    .coord-section:first-child{ border-top:none; }
+
+    .coord-title{
+        display:flex; align-items:center; justify-content:center; gap:8px;
+        font-size:.8rem; letter-spacing:.12em; text-transform:uppercase;
+        color:rgba(238,213,168,.85);
+        margin-bottom:14px;
+    }
+
+    .coord-count{
+        background:rgba(214,171,96,.25);
+        padding:3px 10px;
+        border-radius:12px;
+        font-size:.72rem;
+    }
+
+    .coord-date-list{
+        display:flex; flex-direction:column; gap:10px;
+    }
+
+    .coord-date-card{
+        display:flex; flex-direction:column; gap:6px;
+        padding:12px 14px;
+        border-radius:8px;
+        border:2px solid #8a6a3f;
+        background:linear-gradient(180deg, var(--parch), var(--parch-dark));
+        box-shadow:inset 0 3px 8px rgba(66,42,20,.25);
+    }
+
+    .coord-date-main{
+        font-size:1.05rem;
+        font-weight:700;
+        color:var(--ink);
+        letter-spacing:.02em;
+    }
+
+    .coord-subtext{
+        font-size:.78rem;
+        color:#5a4324;
+        font-style:italic;
+    }
+
+    .coord-missing{
+        display:flex; flex-wrap:wrap; gap:6px; margin-top:4px;
+    }
+
+    .coord-missing .missing-tag{
+        padding:3px 8px;
+        font-size:.7rem;
+        background:rgba(201,75,58,.18);
+        border:1px solid rgba(201,75,58,.45);
+        border-radius:10px;
+        color:var(--crimson);
+    }
+
+    .all-avail-card{ border-color:var(--emerald); box-shadow:inset 0 3px 8px rgba(47,156,92,.2); }
+    .all-avail-card .coord-date-main{ color:#1d4a2f; }
+
+    .near-match-card{ border-color:var(--amber); box-shadow:inset 0 3px 8px rgba(201,144,28,.2); }
+    .near-match-card .coord-date-main{ color:#5a450f; }
+
+    .empty-coord{
+        text-align:center;
+        padding:20px 10px;
+        color:rgba(232,205,158,.6);
+        font-style:italic;
+        font-size:.9rem;
+        background:rgba(0,0,0,.15);
+        border-radius:8px;
+    }
+
+    /* ---------- Calendars ---------- */
+    .calendar-container{
+        display:grid;
+        grid-template-columns:repeat(auto-fit,minmax(310px,1fr));
+        gap:22px;
+    }
+
+    .month-calendar{
+        position:relative;
+        border-radius:16px;
+        border:4px solid #33200f;
+        padding:22px 20px 20px;
+        background-color:#5a3820;
+        background-image:
+            repeating-linear-gradient(88deg,
+                rgba(0,0,0,.10) 0 1px,
+                rgba(255,226,178,.028) 1px 3px,
+                rgba(0,0,0,.06) 3px 6px),
+            linear-gradient(180deg,#7d5231,#5c3a20 56%,#472b18);
+        box-shadow:
+            inset 0 0 0 2px rgba(169,116,63,.85),
+            inset 0 0 26px rgba(0,0,0,.45),
+            0 14px 30px rgba(0,0,0,.55);
+    }
+
+    .month-calendar::before{
+        content:"";
+        position:absolute; inset:7px;
+        border:1px dashed rgba(230,192,120,.28);
+        border-radius:11px;
+        pointer-events:none;
+    }
+
+    .month-calendar::after{
+        content:"";
+        position:absolute; inset:0; border-radius:inherit;
+        pointer-events:none;
+        background-image:
+            radial-gradient(circle at 15px 15px, rgba(245,222,168,.9) 0 2.5px, rgba(0,0,0,.55) 2.5px 4.5px, transparent 4.5px),
+            radial-gradient(circle at calc(100% - 15px) 15px, rgba(245,222,168,.9) 0 2.5px, rgba(0,0,0,.55) 2.5px 4.5px, transparent 4.5px),
+            radial-gradient(circle at 15px calc(100% - 15px), rgba(245,222,168,.9) 0 2.5px, rgba(0,0,0,.55) 2.5px 4.5px, transparent 4.5px),
+            radial-gradient(circle at calc(100% - 15px) calc(100% - 15px), rgba(245,222,168,.9) 0 2.5px, rgba(0,0,0,.55) 2.5px 4.5px, transparent 4.5px);
+    }
+
+    .month-calendar > *{ position:relative; z-index:1; }
+
+    .month-title{
+        text-align:center;
+        font-size:1.25rem;
+        letter-spacing:.13em;
+        text-transform:uppercase;
+        color:var(--gold-bright);
+        text-shadow:0 1px 0 rgba(43,24,12,.9), 0 3px 7px rgba(0,0,0,.6);
+        margin-bottom:16px;
+    }
+
+    .weekday-header{
+        display:grid; grid-template-columns:repeat(7,1fr);
+        gap:4px; margin-bottom:8px;
+    }
+
+    .weekday-header div{
+        text-align:center;
+        padding:6px 2px;
+        font-size:.68rem; font-weight:700; letter-spacing:.08em;
+        text-transform:uppercase;
+        color:#4a3218;
+        border:1px solid #8a6a3f;
+        border-radius:5px;
+        background-image:linear-gradient(180deg,#e9d8b2,#cfb488);
+        box-shadow:inset 0 1px 0 rgba(255,255,255,.5), inset 0 -2px 4px rgba(105,72,36,.35);
+    }
+
+    /* ========== RUGGED PAPER DAY CELLS ========== */
+    .calendar-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+
+    .day-cell{
+        position:relative;
+        aspect-ratio:1;
+        min-height:46px;
+        padding:3px;
+        border:2px solid #a0845a;
+        border-radius:4px;
+        cursor:pointer;
+        display:flex; flex-direction:column;
+        align-items:center; justify-content:flex-start;
+        overflow:hidden;
+        transition:transform .14s, box-shadow .14s, border-color .14s;
+    }
+
+    /* Base rugged paper texture */
+    .day-cell{
+        background-color:var(--parch);
+        /* Paper base */
+        background-image:
+            /* Random speckle/noise pattern */
+            url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noise)" opacity="0.4"/></svg>'),
+            /* Ink bleed spots */
+            radial-gradient(ellipse 30px 25px at 15% 20%, rgba(70,52,30,0.08), transparent 60%),
+            radial-gradient(ellipse 25px 20px at 75% 65%, rgba(60,42,22,0.06), transparent 55%),
+            radial-gradient(ellipse 20px 18px at 60% 15%, rgba(55,38,20,0.05), transparent 50%),
+            radial-gradient(ellipse 35px 28px at 85% 85%, rgba(65,48,25,0.07), transparent 62%),
+            /* Fiber grain */
+            repeating-linear-gradient(0deg,
+                transparent 0 1px,
+                rgba(139,119,88,0.03) 1px 2px,
+                transparent 2px 4px),
+            /* Warm yellowed base */
+            linear-gradient(180deg, #f5e6c8 0%, #e8d4a8 50%, #dcc79c 100%);
+        background-blend-mode: overlay, multiply, multiply, multiply, overlay, normal;
+        
+        /* Ragged edge effect */
+        box-shadow:
+            inset 0 0 8px rgba(139,115,75,0.35),
+            inset 0 0 15px rgba(100,75,40,0.2),
+            0 2px 4px rgba(0,0,0,0.15),
+            0 0 0 1px rgba(160,130,90,0.5);
+    }
+
+    /* Edge burn marks / wear */
+    .day-cell::before{
+        content:"";
+        position:absolute;
+        inset:-2px;
+        border-radius:4px;
+        background:
+            /* Corner darkening - top-left */
+            radial-gradient(circle at 0 0, rgba(85,60,35,0.25) 0 25%, transparent 55%),
+            /* Corner darkening - top-right */
+            radial-gradient(circle at 100% 0, rgba(85,60,35,0.2) 0 22%, transparent 50%),
+            /* Corner darkening - bottom-left */
+            radial-gradient(circle at 0 100%, rgba(85,60,35,0.18) 0 20%, transparent 48%),
+            /* Corner darkening - bottom-right */
+            radial-gradient(circle at 100% 100%, rgba(85,60,35,0.22) 0 24%, transparent 52%);
+        pointer-events:none;
+    }
+
+    /* Tear/fray marks along edges */
+    .day-cell::after{
+        content:"";
+        position:absolute;
+        inset:0;
+        background:
+            /* Small notch on top edge */
+            radial-gradient(circle at 35% 0, rgba(65,45,25,0.15) 0 4px, transparent 4.5px),
+            /* Small notch on right edge */
+            radial-gradient(circle at 100% 55%, rgba(65,45,25,0.12) 0 3px, transparent 3.5px),
+            /* Small notch on bottom */
+            radial-gradient(circle at 70% 100%, rgba(65,45,25,0.1) 0 3px, transparent 3.5px),
+            /* Rough edge shadow */
+            linear-gradient(90deg,
+                rgba(100,75,40,0.15) 0 1px,
+                transparent 1px 2px,
+                rgba(100,75,40,0.12) 2px 3px);
+        pointer-events:none;
+        border-radius:4px;
+    }
+
+    /* Hover state - lift effect */
+    .day-cell:hover:not(.empty){
+        transform:translateY(-2px) scale(1.03);
+        border-color:var(--gold);
+        box-shadow:
+            inset 0 0 10px rgba(214,171,96,0.25),
+            inset 0 0 18px rgba(169,116,63,0.3),
+            0 0 0 2px rgba(214,171,96,.55),
+            0 8px 16px rgba(0,0,0,.4);
+        z-index:2;
+    }
+
+    .day-cell.empty{
+        background:transparent;
+        border:none;
+        box-shadow:none;
+        cursor:default;
+        opacity:0;
+    }
+    .day-cell.empty:hover{ transform:none; }
+
+    /* Status tints - overlay on paper texture */
+    .day-cell.tint-available::before{
+        content:"";
+        position:absolute; inset:0;
+        background:linear-gradient(180deg,
+            rgba(89,208,132,.25) 0%,
+            rgba(41,133,79,.32) 100%);
+        mix-blend-mode:multiply;
+    }
+    .day-cell.tint-pending::before{
+        content:"";
+        position:absolute; inset:0;
+        background:linear-gradient(180deg,
+            rgba(236,186,64,.28) 0%,
+            rgba(183,131,20,.35) 100%);
+        mix-blend-mode:multiply;
+    }
+    .day-cell.tint-unavailable::before{
+        content:"";
+        position:absolute; inset:0;
+        background:linear-gradient(180deg,
+            rgba(219,106,88,.28) 0%,
+            rgba(150,53,39,.38) 100%);
+        mix-blend-mode:multiply;
+    }
+
+    .day-number{
+        font-size:.76rem; font-weight:700;
+        color:#3d2810;
+        text-shadow:0 1px 0 rgba(255,255,255,0.45);
+        z-index:1;
+        letter-spacing:0.03em;
+    }
+
+    .day-cell.tint-unavailable .day-number,
+    .day-cell.tint-available .day-number,
+    .day-cell.tint-pending .day-number{
+        color:#2f1d0c;
+        text-shadow:0 1px 0 rgba(255,255,255,0.35);
+    }
+
+    .current-day{
+        border-color:#f2d79a !important;
+        box-shadow:
+            inset 0 0 12px rgba(242,215,154,.6),
+            inset 0 0 20px rgba(242,215,154,.4),
+            0 0 0 2px rgba(242,215,154,.75),
+            0 0 18px rgba(242,215,154,.45) !important;
+    }
+
+    .user-marks{
+        display:flex; flex-wrap:wrap; gap:2px;
+        width:100%; margin-top:auto; padding:2px;
+    }
+
+    .user-mark{
+        flex:1 1 6px; min-width:6px; height:7px;
+        border-radius:2px;
+        border:1px solid rgba(47,29,12,.45);
+        box-shadow:inset 0 1px 1px rgba(255,255,255,.45);
+    }
+    .user-mark.available{ background:linear-gradient(180deg,#7ee0a2,#2f9c5c); }
+    .user-mark.pending{ background:linear-gradient(180deg,#f7d271,#c9901c); }
+    .user-mark.unavailable{ background:linear-gradient(180deg,#e8836f,#a8382a); }
+
+    /* ---------- Status selector ---------- */
+    .status-selector{
+        display:flex; gap:12px; justify-content:center;
+        margin:24px 0 4px; flex-wrap:wrap;
+    }
+
+    .status-btn{
+        display:flex; align-items:center; gap:9px;
+        padding:11px 22px;
+        font-family:inherit;
+        font-size:.83rem; font-weight:700; letter-spacing:.06em;
+        text-transform:uppercase;
+        color:#ffeecb;
+        cursor:pointer;
+        border:2px solid #33200f;
+        border-radius:9px;
+        background-image:linear-gradient(180deg,#7d5231,#4f3119);
+        box-shadow:inset 0 1px 0 rgba(255,224,175,.28), 0 5px 12px rgba(0,0,0,.45);
+        opacity:.6;
+        transition:opacity .18s, transform .18s, box-shadow .18s;
+    }
+
+    .status-btn.active{
+        opacity:1;
+        transform:translateY(-2px);
+    }
+    .status-btn.green.active{ box-shadow:inset 0 1px 0 rgba(255,224,175,.3), 0 0 0 2px rgba(127,224,162,.85), 0 0 18px rgba(63,191,111,.6); }
+    .status-btn.yellow.active{ box-shadow:inset 0 1px 0 rgba(255,224,175,.3), 0 0 0 2px rgba(247,210,113,.9), 0 0 18px rgba(224,169,42,.6); }
+    .status-btn.red.active{ box-shadow:inset 0 1px 0 rgba(255,224,175,.3), 0 0 0 2px rgba(233,131,111,.9), 0 0 18px rgba(201,75,58,.6); }
+
+    /* ---------- Selection list ---------- */
+    .selection-info{ text-align:center; }
+
+    .selection-info h3{
+        font-size:.95rem; letter-spacing:.14em; text-transform:uppercase;
+        color:rgba(238,213,168,.85);
+        margin-bottom:16px;
+    }
+
+    .selection-dates{ display:flex; flex-wrap:wrap; gap:9px; justify-content:center; }
+
+    .selection-date{
+        padding:7px 14px;
+        font-size:.82rem;
+        color:var(--ink);
+        border-radius:6px;
+        border:1px solid #8a6a3f;
+        background-image:linear-gradient(180deg,#f1e5c8,#dcc79c);
+        box-shadow:inset 0 1px 0 rgba(255,255,255,.55), 0 3px 8px rgba(0,0,0,.35);
+    }
+
+    .empty-note{ color:rgba(232,205,158,.6); font-style:italic; font-size:.9rem; }
+
+    /* ---------- Setup notice ---------- */
+    .setup-notice{
+        display:none;
+        border-color:#7a5416;
+        background-image:linear-gradient(180deg,#8a6320,#5e4315);
+    }
+    .setup-notice.show{ display:block; }
+    .setup-notice h3{
+        color:#fff2cf; font-size:1rem; letter-spacing:.08em;
+        text-transform:uppercase; margin-bottom:12px;
+    }
+    .setup-notice ol{ margin:0 0 12px 22px; color:#f6e6c4; font-size:.9rem; line-height:1.75; }
+    .setup-notice p{ color:#f6e6c4; font-size:.9rem; line-height:1.7; }
+    .setup-notice a{ color:#ffe9a8; }
+    .setup-notice code{
+        font-family:'Courier New',monospace;
+        background:rgba(37,22,10,.55);
+        padding:2px 7px; border-radius:4px;
+        color:#ffe9a8;
+    }
+
+    /* ---------- Toast ---------- */
+    .toast{
+        position:fixed; left:50%; bottom:26px;
+        transform:translate(-50%,20px);
+        z-index:1200;
+        max-width:min(90vw,460px);
+        padding:13px 22px;
+        font-size:.88rem;
+        text-align:center;
+        color:#ffeecb;
+        border:2px solid #33200f;
+        border-radius:10px;
+        background-image:linear-gradient(180deg,#7d5231,#4a2d19);
+        box-shadow:inset 0 1px 0 rgba(255,224,175,.3), 0 12px 26px rgba(0,0,0,.6);
+        opacity:0;
+        transition:opacity .3s, transform .3s;
+        pointer-events:none;
+    }
+    .toast.show{ opacity:1; transform:translate(-50%,0); }
+
+    /* ---------- Footer ---------- */
+    footer{
+        text-align:center;
+        margin-top:26px;
+        font-size:.78rem;
+        letter-spacing:.1em;
+        text-transform:uppercase;
+        color:rgba(232,205,158,.45);
+    }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width:760px){
+        body{ padding:18px 10px 60px; }
+        .panel, .month-calendar, .coord-panel{ padding:18px 14px; border-width:3px; }
+        .calendar-container{ grid-template-columns:1fr; }
+        .connection-status{ top:10px; right:10px; padding:6px 13px; font-size:.68rem; }
+        .weekday-header div{ font-size:.6rem; padding:5px 1px; }
+        .day-cell{ min-height:42px; }
+        .day-number{ font-size:.7rem; }
+        .user-mark{ height:6px; min-width:5px; }
+        .status-btn{ padding:10px 16px; font-size:.76rem; }
+        .coord-date-card{ padding:10px 12px; }
+        .coord-date-main{ font-size:.95rem; }
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>&#9876; The Availability Ledger &#9876;</h1>
+        <p class="subtitle">Every traveller sees the same ledger, in real time.</p>
+        <div class="ornament"><span></span><b>&#10022;</b><span></span></div>
+    </header>
+
+    <div class="connection-status loading" id="connectionStatus">Connecting&hellip;</div>
+
+    <!-- Setup notice -->
+    <div class="panel setup-notice" id="setupNotice">
+        <h3>&#9888; The Ledger Has Not Been Bound Yet</h3>
+        <p>This page needs a Firebase configuration to share data between visitors. Until then it runs in local-only mode.</p>
+        <ol>
+            <li>Create a project at <a href="https://firebase.google.com" target="_blank" rel="noopener">firebase.google.com</a></li>
+            <li>Add a Web app and copy the config object</li>
+            <li>Paste it into <code>FIREBASE_CONFIG</code> in this file</li>
+            <li>Enable Cloud Firestore (start in test mode)</li>
+            <li>Commit &mdash; Render redeploys automatically</li>
+        </ol>
+    </div>
+
+    <!-- Roster -->
+    <section class="panel">
+        <div class="roster-label">Sign the Roster</div>
+        <div class="user-input-group">
+            <input type="text" id="usernameInput" placeholder="Type your name&hellip;" maxlength="20" autocomplete="off">
+            <button class="btn" id="addUserBtn" onclick="addUser()">Add Yourself</button>
+        </div>
+        <div class="active-user-display" id="activeUserDisplay">
+            <span>Marking as: <strong id="currentUserDisplay"></strong></span>
+            <button class="btn btn-small" onclick="removeUser()">Switch Name</button>
+        </div>
+    </section>
+
+    <!-- Main layout with coordination panel -->
+    <div class="main-layout">
+        <!-- Left column: Calendars + Personal marks -->
+        <div class="left-column">
+            <!-- Legend -->
+            <div class="legend">
+                <div class="legend-item"><div class="gem available"></div><span>Available</span></div>
+                <div class="legend-item"><div class="gem pending"></div><span>Pending</span></div>
+                <div class="legend-item"><div class="gem unavailable"></div><span>Not Available</span></div>
+            </div>
+
+            <!-- Calendars -->
+            <div class="calendar-container" id="calendarContainer"></div>
+
+            <!-- Status selector -->
+            <div class="status-selector">
+                <button class="status-btn green" data-status="available" onclick="selectStatus('available')">
+                    <span class="gem available"></span> Available
+                </button>
+                <button class="status-btn yellow active" data-status="pending" onclick="selectStatus('pending')">
+                    <span class="gem pending"></span> Pending
+                </button>
+                <button class="status-btn red" data-status="unavailable" onclick="selectStatus('unavailable')">
+                    <span class="gem unavailable"></span> Not Available
+                </button>
+            </div>
+
+            <!-- Your Selected Dates -->
+            <section class="panel selection-info" id="selectionInfo" style="display:none;">
+                <h3>Your Upcoming Marks</h3>
+                <div class="selection-dates" id="selectionDates"></div>
+            </section>
+        </div>
+
+        <!-- Right column: Coordination panel -->
+        <aside class="panel coord-panel">
+            <div class="coord-header">&#9875; Common Ground &#9875;</div>
+            
+            <!-- All Available section -->
+            <div class="coord-section" id="allAvailSection">
+                <div class="coord-title">
+                    <span class="coord-count" id="allAvailCount">0</span>
+                    <span>All Available</span>
+                </div>
+                <div class="coord-date-list" id="allAvailList"></div>
+            </div>
+
+            <!-- Nearly Available section (only 1 missing) -->
+            <div class="coord-section" id="nearMatchSection">
+                <div class="coord-title">
+                    <span class="coord-count" id="nearMatchCount">0</span>
+                    <span>Nearly There (1 Missing)</span>
+                </div>
+                <div class="coord-date-list" id="nearMatchList"></div>
+            </div>
+        </aside>
+    </div>
+
+    <footer>Ten travellers &middot; Two moons &middot; One ledger</footer>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<script>
+/* ============================================================
+   FIREBASE CONFIGURATION — replace with your own values
+   ============================================================ */
+const FIREBASE_CONFIG = {
+    apiKey: "AIzaSyAgDYveaMGqh3B6ZR89s7OheYQ5X1wvP0A",
+    authDomain: "availabilty-ledger.firebaseapp.com",
+    projectId: "availabilty-ledger",
+    storageBucket: "availabilty-ledger.firebasestorage.app",
+    messagingSenderId: "745008682517",
+    appId: "1:745008682517:web:8ad4889eb28110cc3e201c"
+};
+
+const FIREBASE_ENABLED = typeof firebase !== 'undefined' &&
+                         FIREBASE_CONFIG.apiKey !== "YOUR_API_KEY_HERE";
+
+const MAX_USERS = 10;
+const COLLECTION = 'availability';
+
+let db = null;
+if (FIREBASE_ENABLED) {
+    try {
+        firebase.initializeApp(FIREBASE_CONFIG);
+        db = firebase.firestore();
+    } catch (err) {
+        console.error('Firebase init failed:', err);
+    }
+}
+
+/* ---------- State ---------- */
+let currentUser = null;
+let selectedStatus = 'pending';
+let allUserData = {};
+let unsubscribeListener = null;
+
+/* ---------- Helpers ---------- */
+function capitalize(str){ return str.charAt(0).toUpperCase() + str.slice(1); }
+
+function getData(){ return FIREBASE_ENABLED ? allUserData : getOfflineData(); }
+
+function getOfflineData(){
+    try { return JSON.parse(localStorage.getItem('availabilityOfflineData')) || {}; }
+    catch(e){ return {}; }
+}
+
+function saveOfflineData(data){
+    localStorage.setItem('availabilityOfflineData', JSON.stringify(data));
+}
+
+function showToast(message){
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.textContent = message;
+    document.body.appendChild(t);
+    requestAnimationFrame(() => t.classList.add('show'));
+    setTimeout(() => {
+        t.classList.remove('show');
+        setTimeout(() => t.remove(), 350);
+    }, 3400);
+}
+
+function updateConnectionStatus(state){
+    const el = document.getElementById('connectionStatus');
+    el.className = 'connection-status ' + state;
+    el.textContent = state === 'connected' ? 'Online'
+                   : state === 'disconnected' ? 'Offline'
+                   : 'Connecting\u2026';
+}
+
+/* ---------- Boot ---------- */
+function init(){
+    document.getElementById('setupNotice').classList.toggle('show', !FIREBASE_ENABLED);
+    updateConnectionStatus(FIREBASE_ENABLED ? 'loading' : 'disconnected');
+
+    if (FIREBASE_ENABLED && db) {
+        setupFirestoreListener();
+    }
+
+    renderCalendars();
+    renderCoordPanel();
+    updateSelectionDisplay();
+    setTimeout(() => document.getElementById('loadingOverlay')?.remove(), 250);
+}
+
+/* ---------- Firestore ---------- */
+function setupFirestoreListener(){
+    unsubscribeListener = db.collection(COLLECTION).onSnapshot(
+        (snapshot) => {
+            allUserData = {};
+            snapshot.forEach(doc => {
+                const data = doc.data() || {};
+                allUserData[doc.id] = data.markings || {};
+            });
+            updateConnectionStatus('connected');
+            renderCalendars();
+            renderCoordPanel();
+            if (currentUser) updateSelectionDisplay();
+        },
+        (error) => {
+            console.error('Ledger listen error:', error);
+            updateConnectionStatus('disconnected');
+            showToast('Lost contact with the ledger. Retrying\u2026');
+        }
+    );
+}
+
+async function writeFirestore(dateKey){
+    if (!db || !currentUser) return;
+    
+    try {
+        await db.collection(COLLECTION).doc(currentUser).set({
+            markings: { [dateKey]: selectedStatus },
+            lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+    } catch (error) {
+        console.error('Ledger write failed:', error);
+        showToast('Could not save that mark. Check your Firestore rules.');
+    }
+}
+
+/* ---------- Roster ---------- */
+function addUser(){
+    const input = document.getElementById('usernameInput');
+    const username = input.value.trim().toLowerCase();
+
+    if (!username){
+        showToast('Please enter a name to sign the roster.');
+        return;
+    }
+
+    const data = getData();
+    const existing = Object.keys(data);
+
+    if (!existing.includes(username) && existing.length >= MAX_USERS){
+        showToast('The roster is full \u2014 ' + MAX_USERS + ' travellers maximum.');
+        return;
+    }
+
+    currentUser = username;
+
+    if (!FIREBASE_ENABLED){
+        const offline = getOfflineData();
+        if (!offline[username]) offline[username] = {};
+        saveOfflineData(offline);
+    }
+
+    document.getElementById('activeUserDisplay').classList.add('show');
+    document.getElementById('currentUserDisplay').textContent = capitalize(username);
+    document.getElementById('selectionInfo').style.display = 'block';
+    input.value = '';
+    input.disabled = true;
+    document.getElementById('addUserBtn').disabled = true;
+
+    renderCalendars();
+    renderCoordPanel();
+    updateSelectionDisplay();
+}
+
+function removeUser(){
+    currentUser = null;
+    document.getElementById('activeUserDisplay').classList.remove('show');
+    document.getElementById('selectionInfo').style.display = 'none';
+    const input = document.getElementById('usernameInput');
+    input.disabled = false;
+    document.getElementById('addUserBtn').disabled = false;
+    input.focus();
+    renderCalendars();
+    renderCoordPanel();
+    updateSelectionDisplay();
+}
+
+/* ---------- Status ---------- */
+function selectStatus(status){
+    selectedStatus = status;
+    document.querySelectorAll('.status-btn').forEach(btn => btn.classList.remove('active'));
+    const target = document.querySelector('.status-btn.' + status);
+    if (target) target.classList.add('active');
+}
+
+/* ---------- Marking dates ---------- */
+async function toggleDate(year, month, day){
+    if (!currentUser){
+        showToast('Sign the roster first \u2014 enter your name above.');
+        return;
+    }
+
+    const dateKey = year + '-' +
+                    String(month + 1).padStart(2, '0') + '-' +
+                    String(day).padStart(2, '0');
+
+    if (FIREBASE_ENABLED){
+        await writeFirestore(dateKey);
+    } else {
+        const data = getOfflineData();
+        if (!data[currentUser]) data[currentUser] = {};
+        data[currentUser][dateKey] = selectedStatus;
+        saveOfflineData(data);
+    }
+
+    renderCalendars();
+    renderCoordPanel();
+    updateSelectionDisplay();
+}
+
+/* ---------- COORDINATION PANEL LOGIC ========== */
+function renderCoordPanel(){
+    const data = getData();
+    const users = Object.keys(data);
+    
+    // No users yet
+    if (users.length === 0){
+        document.getElementById('allAvailList').innerHTML = 
+            '<div class="empty-coord">No travellers on the roster yet</div>';
+        document.getElementById('nearMatchList').innerHTML = 
+            '<div class="empty-coord">Add travellers to see overlaps</div>';
+        document.getElementById('allAvailCount').textContent = '0';
+        document.getElementById('nearMatchCount').textContent = '0';
+        return;
+    }
+
+    const todayStr = new Date().toISOString().split('T')[0];
+    const allDates = new Set();
+    
+    // Collect all dates from all users
+    Object.values(data).forEach(userMarks => {
+        Object.keys(userMarks).forEach(d => allDates.add(d));
+    });
+
+    // Filter to future/upcoming dates only
+    const upcomingDates = Array.from(allDates)
+        .filter(d => d >= todayStr)
+        .sort();
+
+    const allAvailDates = [];
+    const nearMatchDates = [];
+
+    upcomingDates.forEach(dateKey => {
+        // Count how many are available, pending, or unavailable
+        let availableCount = 0;
+        let pendingCount = 0;
+        let unavailableUsers = [];
+
+        users.forEach(user => {
+            const status = data[user][dateKey];
+            if (status === 'available') availableCount++;
+            else if (status === 'pending') pendingCount++;
+            else if (status === 'unavailable') unavailableUsers.push(user);
+        });
+
+        const totalMarked = availableCount + pendingCount + unavailableUsers.length;
+
+        // For coordination: we want dates where everyone has marked "available"
+        // OR dates where only one person hasn't marked "available" (others available/pending)
+        
+        if (availableCount === users.length){
+            // Everyone is available (all marked available)
+            allAvailDates.push(dateKey);
+        } else if (availableCount === users.length - 1 && unavailableUsers.length === 1){
+            // Exactly one person is unavailable, rest are available
+            nearMatchDates.push({
+                date: dateKey,
+                missing: unavailableUsers
+            });
+        } else if (availableCount + pendingCount === users.length - 1 && unavailableUsers.length === 1){
+            // One unavailable, rest available or pending
+            nearMatchDates.push({
+                date: dateKey,
+                missing: unavailableUsers
+            });
+        }
+    });
+
+    // Render All Available
+    const allAvailList = document.getElementById('allAvailList');
+    document.getElementById('allAvailCount').textContent = allAvailDates.length;
+
+    if (allAvailDates.length === 0){
+        allAvailList.innerHTML = '<div class="empty-coord">No dates with full availability yet</div>';
+    } else {
+        allAvailList.innerHTML = allAvailDates.slice(0, 8).map(d => formatDateCard(d, 'all')).join('');
+    }
+
+    // Render Nearly There
+    const nearMatchList = document.getElementById('nearMatchList');
+    document.getElementById('nearMatchCount').textContent = nearMatchDates.length;
+
+    if (nearMatchDates.length === 0){
+        nearMatchList.innerHTML = '<div class="empty-coord">No near-matches found</div>';
+    } else {
+        nearMatchList.innerHTML = nearMatchDates.slice(0, 8).map(item => 
+            formatDateCard(item.date, 'near', item.missing)
+        ).join('');
+    }
+}
+
+function formatDateCard(dateKey, type, missing = []){
+    const parts = dateKey.split('-');
+    const asDate = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+    const formatted = asDate.toLocaleDateString('en-US', {
+        weekday: 'short',
+        month: 'short', 
+        day: 'numeric',
+        year: 'numeric'
+    });
+
+    if (type === 'all'){
+        return `
+            <div class="coord-date-card all-avail-card">
+                <div class="coord-date-main">${formatted}</div>
+                <div class="coord-subtext">All hands present</div>
+            </div>
+        `;
+    } else {
+        const missingNames = missing.map(u => capitalize(u)).join(', ');
+        return `
+            <div class="coord-date-card near-match-card">
+                <div class="coord-date-main">${formatted}</div>
+                <div class="coord-subtext">${capitalize(missingNames)} unavailable</div>
+            </div>
+        `;
+    }
+}
+
+/* ---------- Calendar rendering ---------- */
+function getMonthDays(year, month){
+    return {
+        firstDay: new Date(year, month, 1).getDay(),
+        daysInMonth: new Date(year, month + 1, 0).getDate()
+    };
+}
+
+function renderCalendars(){
+    const container = document.getElementById('calendarContainer');
+    container.innerHTML = '';
+
+    const today = new Date();
+    const monthNames = ['January','February','March','April','May','June',
+                        'July','August','September','October','November','December'];
+    const weekdays = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const data = getData();
+
+    const monthsToShow = [
+        { month: today.getMonth(), year: today.getFullYear() },
+        { month: today.getMonth() + 1, year: today.getFullYear() }
+    ];
+
+    monthsToShow.forEach(({ month, year }) => {
+        const adjustedMonth = month > 11 ? month - 12 : month;
+        const adjustedYear = month > 11 ? year + 1 : year;
+
+        const card = document.createElement('div');
+        card.className = 'month-calendar';
+
+        const title = document.createElement('div');
+        title.className = 'month-title';
+        title.textContent = monthNames[adjustedMonth] + ' ' + adjustedYear;
+        card.appendChild(title);
+
+        const header = document.createElement('div');
+        header.className = 'weekday-header';
+        weekdays.forEach(name => {
+            const cell = document.createElement('div');
+            cell.textContent = name;
+            header.appendChild(cell);
+        });
+        card.appendChild(header);
+
+        const grid = document.createElement('div');
+        grid.className = 'calendar-grid';
+
+        const { firstDay, daysInMonth } = getMonthDays(adjustedYear, adjustedMonth);
+
+        for (let i = 0; i < firstDay; i++){
+            const blank = document.createElement('div');
+            blank.className = 'day-cell empty';
+            grid.appendChild(blank);
+        }
+
+        for (let day = 1; day <= daysInMonth; day++){
+            const cell = document.createElement('div');
+            cell.className = 'day-cell';
+
+            const thisDate = new Date(adjustedYear, adjustedMonth, day);
+            if (thisDate.toDateString() === today.toDateString()){
+                cell.classList.add('current-day');
+            }
+
+            const dateKey = adjustedYear + '-' +
+                            String(adjustedMonth + 1).padStart(2, '0') + '-' +
+                            String(day).padStart(2, '0');
+
+            // Collect every traveller's mark for this date
+            const marks = [];
+            Object.keys(data).forEach(user => {
+                if (data[user] && data[user][dateKey]){
+                    marks.push({ user: user, status: data[user][dateKey] });
+                }
+            });
+
+            // Overall tint: any refusal wins, then pending, then available
+            if (marks.some(m => m.status === 'unavailable')){
+                cell.classList.add('tint-unavailable');
+            } else if (marks.some(m => m.status === 'pending')){
+                cell.classList.add('tint-pending');
+            } else if (marks.length){
+                cell.classList.add('tint-available');
+            }
+
+            const number = document.createElement('div');
+            number.className = 'day-number';
+            number.textContent = day;
+            cell.appendChild(number);
+
+            if (marks.length){
+                const strip = document.createElement('div');
+                strip.className = 'user-marks';
+                marks.forEach(m => {
+                    const pip = document.createElement('div');
+                    pip.className = 'user-mark ' + m.status;
+                    pip.title = capitalize(m.user) + ' \u2014 ' + m.status;
+                    strip.appendChild(pip);
+                });
+                cell.appendChild(strip);
+            }
+
+            cell.addEventListener('click', () => toggleDate(adjustedYear, adjustedMonth, day));
+            grid.appendChild(cell);
+        }
+
+        card.appendChild(grid);
+        container.appendChild(card);
+    });
+}
+
+/* ---------- Personal selection list ---------- */
+function updateSelectionDisplay(){
+    const container = document.getElementById('selectionDates');
+    container.innerHTML = '';
+
+    if (!currentUser){
+        container.innerHTML = '<p class="empty-note">Sign the roster to see your marks.</p>';
+        return;
+    }
+
+    const data = getData();
+    const userDates = data[currentUser] || {};
+    const keys = Object.keys(userDates).sort();
+
+    if (!keys.length){
+        container.innerHTML = '<p class="empty-note">No dates marked yet.</p>';
+        return;
+    }
+
+    const todayStr = new Date().toISOString().split('T')[0];
+    const upcoming = keys.filter(k => k >= todayStr);
+
+    if (!upcoming.length){
+        container.innerHTML = '<p class="empty-note">No upcoming dates marked.</p>';
+        return;
+    }
+
+    const colors = {
+        available: 'var(--emerald)',
+        pending: 'var(--amber)',
+        unavailable: 'var(--crimson)'
+    };
+
+    upcoming.slice(0, 12).forEach(key => {
+        const status = userDates[key];
+        const badge = document.createElement('div');
+        badge.className = 'selection-date';
+
+        const parts = key.split('-');
+        const asDate = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+        badge.textContent = asDate.toLocaleDateString('en-US', {
+            month: 'short', day: 'numeric', year: 'numeric'
+        });
+        badge.style.borderLeft = '5px solid ' + colors[status];
+        badge.title = status;
+        container.appendChild(badge);
+    });
+
+    if (upcoming.length > 12){
+        const more = document.createElement('div');
+        more.className = 'selection-date';
+        more.textContent = '+' + (upcoming.length - 12) + ' more';
+        container.appendChild(more);
+    }
+}
+
+/* ---------- Input handling ---------- */
+document.getElementById('usernameInput').addEventListener('keypress', function(e){
+    if (e.key === 'Enter') addUser();
+});
+
+init();
+</script>
+</body>
+</html>
