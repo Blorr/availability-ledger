@@ -1118,11 +1118,10 @@ function formatDateCard(dateKey, type, missing, status){
 
 function getMonthDays(year, month){
     return {
-        firstDay: new Date(year, month, 1).getDay(),
+        firstDay: (new Date(year, month, 1).getDay() + 6) % 7,
         daysInMonth: new Date(year, month + 1, 0).getDate()
     };
 }
-
 function renderCalendars(){
     const container = document.getElementById('calendarContainer');
     container.innerHTML = '';
@@ -1130,7 +1129,7 @@ function renderCalendars(){
     const today = new Date();
     const monthNames = ['January','February','March','April','May','June',
                         'July','August','September','October','November','December'];
-    const weekdays = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const weekdays = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
     const data = getData();
 
     const monthsToShow = [
