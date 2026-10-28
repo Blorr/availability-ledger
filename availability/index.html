@@ -456,7 +456,6 @@
         transition:transform .14s, box-shadow .14s, border-color .14s;
     }
 
-    /* Base rugged paper texture */
     .day-cell{
         background-color:var(--parch);
         background-image:
@@ -479,7 +478,6 @@
             0 0 0 1px rgba(160,130,90,0.5);
     }
 
-    /* Edge burn marks / wear */
     .day-cell::before{
         content:"";
         position:absolute;
@@ -493,7 +491,6 @@
         pointer-events:none;
     }
 
-    /* Tear/fray marks along edges */
     .day-cell::after{
         content:"";
         position:absolute;
@@ -510,7 +507,6 @@
         border-radius:4px;
     }
 
-    /* Hover state */
     .day-cell:hover:not(.empty){
         transform:translateY(-2px) scale(1.03);
         border-color:var(--gold);
@@ -531,7 +527,6 @@
     }
     .day-cell.empty:hover{ transform:none; }
 
-    /* Status tints */
     .day-cell.tint-available::before{
         content:"";
         position:absolute; inset:0;
@@ -653,27 +648,6 @@
             0 10px 20px rgba(0,0,0,.6);
     }
 
-    /* ---------- Setup notice ---------- */
-    .setup-notice{
-        display:none;
-        border-color:#7a5416;
-        background-image:linear-gradient(180deg,#8a6320,#5e4315);
-    }
-    .setup-notice.show{ display:block; }
-    .setup-notice h3{
-        color:#fff2cf; font-size:1rem; letter-spacing:.08em;
-        text-transform:uppercase; margin-bottom:12px;
-    }
-    .setup-notice ol{ margin:0 0 12px 22px; color:#f6e6c4; font-size:.9rem; line-height:1.75; }
-    .setup-notice p{ color:#f6e6c4; font-size:.9rem; line-height:1.7; }
-    .setup-notice a{ color:#ffe9a8; }
-    .setup-notice code{
-        font-family:'Courier New',monospace;
-        background:rgba(37,22,10,.55);
-        padding:2px 7px; border-radius:4px;
-        color:#ffe9a8;
-    }
-
     /* ---------- Toast ---------- */
     .toast{
         position:fixed; left:50%; bottom:26px;
@@ -732,19 +706,6 @@
 
     <div class="connection-status loading" id="connectionStatus">Connecting&hellip;</div>
 
-    <!-- Setup notice -->
-    <div class="panel setup-notice" id="setupNotice">
-        <h3>&#9888; The Ledger Has Not Been Bound Yet</h3>
-        <p>This page needs a Firebase configuration to share data between visitors. Until then it runs in local-only mode.</p>
-        <ol>
-            <li>Create a project at <a href="https://firebase.google.com" target="_blank" rel="noopener">firebase.google.com</a></li>
-            <li>Add a Web app and copy the config object</li>
-            <li>Paste it into <code>FIREBASE_CONFIG</code> in this file</li>
-            <li>Enable Cloud Firestore (start in test mode)</li>
-            <li>Commit &mdash; Render redeploys automatically</li>
-        </ol>
-    </div>
-
     <!-- Roster -->
     <section class="panel">
         <div class="roster-label">Sign the Roster</div>
@@ -761,7 +722,6 @@
 
     <!-- Main layout with coordination panel -->
     <div class="main-layout">
-        <!-- Left column: Legend, calendars, status selector -->
         <div class="left-column">
             <div class="legend">
                 <div class="legend-item"><div class="gem available"></div><span>Available</span></div>
@@ -784,12 +744,10 @@
             </div>
         </div>
 
-        <!-- Right column: Coordination panel -->
         <aside class="panel coord-panel">
             <div class="coord-header">&#9875; Common Ground &#9875;</div>
             <div class="coord-roster-note" id="coordRosterNote">&nbsp;</div>
 
-            <!-- All Available section -->
             <div class="coord-section" id="allAvailSection">
                 <div class="coord-title">
                     <span class="coord-count" id="allAvailCount">0</span>
@@ -798,7 +756,6 @@
                 <div class="coord-date-list" id="allAvailList"></div>
             </div>
 
-            <!-- Nearly Available section (only 1 missing) -->
             <div class="coord-section" id="nearMatchSection">
                 <div class="coord-title">
                     <span class="coord-count" id="nearMatchCount">0</span>
@@ -887,7 +844,6 @@ function updateConnectionStatus(state){
 
 /* ---------- Boot ---------- */
 function init(){
-    document.getElementById('setupNotice').classList.toggle('show', !FIREBASE_ENABLED);
     updateConnectionStatus(FIREBASE_ENABLED ? 'loading' : 'disconnected');
 
     if (FIREBASE_ENABLED && db) {
@@ -1060,10 +1016,6 @@ async function toggleDate(year, month, day){
 
 /* ============================================================
    COORDINATION PANEL
-   ------------------------------------------------------------
-   All Available  : every registered traveller marked "available"
-   Nearly There   : exactly one traveller has NOT marked
-                    "available" (they are Pending or Not Available)
    ============================================================ */
 function renderCoordPanel(){
     const data = getData();
@@ -1082,7 +1034,6 @@ function renderCoordPanel(){
         return;
     }
 
-    // How many travellers have marked at least one date
     const responders = users.filter(u => Object.keys(data[u] || {}).length > 0);
     noteEl.textContent = responders.length + ' of ' + users.length +
                          ' travellers have marked dates';
@@ -1115,14 +1066,11 @@ function renderCoordPanel(){
             else unmarked++;
         });
 
-        // --- All Available: everyone has confirmed ---
         if (available.length === users.length){
             allAvailDates.push(dateKey);
             return;
         }
 
-        // --- Nearly There: everyone has responded, and exactly one
-        //     traveller is not available (pending OR unavailable) ---
         const holdingOut = pending.concat(unavailable);
         if (holdingOut.length === 1 && unmarked === 0){
             nearMatchDates.push({
@@ -1133,7 +1081,6 @@ function renderCoordPanel(){
         }
     });
 
-    // --- Render: All Available ---
     const allAvailList = document.getElementById('allAvailList');
     document.getElementById('allAvailCount').textContent = allAvailDates.length;
 
@@ -1145,7 +1092,6 @@ function renderCoordPanel(){
             .join('');
     }
 
-    // --- Render: Nearly There ---
     const nearMatchList = document.getElementById('nearMatchList');
     document.getElementById('nearMatchCount').textContent = nearMatchDates.length;
 
