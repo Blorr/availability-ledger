@@ -43,7 +43,6 @@
 
     .container{ max-width:1180px; margin:0 auto; }
 
-    /* ---------- Heading ---------- */
     header{ text-align:center; margin-bottom:26px; }
 
     h1{
@@ -73,7 +72,6 @@
         background:linear-gradient(90deg,transparent,rgba(214,171,96,.75),transparent); }
     .ornament b{ font-size:1rem; letter-spacing:.2em; }
 
-    /* ---------- Connection badge ---------- */
     .connection-status{
         position:fixed; top:18px; right:18px; z-index:900;
         padding:8px 18px;
@@ -88,7 +86,6 @@
     .connection-status.disconnected{ background:linear-gradient(180deg,#f0a396,#c94b3a); color:#fff6ef; }
     .connection-status.loading{ background:linear-gradient(180deg,#f5dd9e,#d6ab60); }
 
-    /* ---------- Carved wood panels ---------- */
     .panel{
         position:relative;
         border-radius:16px;
@@ -129,7 +126,6 @@
 
     .panel > *{ position:relative; z-index:1; }
 
-    /* ---------- Roster / name entry ---------- */
     .roster-label{
         font-size:.82rem; letter-spacing:.16em; text-transform:uppercase;
         color:rgba(238,213,168,.72); margin-bottom:12px;
@@ -213,7 +209,6 @@
         opacity:.85;
     }
 
-    /* ---------- Legend ---------- */
     .legend{
         display:flex; justify-content:center; gap:14px;
         margin-bottom:22px; flex-wrap:wrap;
@@ -239,7 +234,6 @@
     .gem.pending{ background:radial-gradient(circle at 34% 28%, #ffeeb0, #e0a92a 60%, #9c6c10); }
     .gem.unavailable{ background:radial-gradient(circle at 34% 28%, #ffc0b2, #c94b3a 60%, #7d271c); }
 
-    /* ---------- Layout with coordination panel ---------- */
     .main-layout{
         display:grid;
         grid-template-columns: 1fr 360px;
@@ -251,10 +245,8 @@
         .main-layout{ grid-template-columns:1fr; }
     }
 
-    /* ---------- Left side ---------- */
     .left-column{ display:flex; flex-direction:column; gap:22px; }
 
-    /* ---------- Right side: Coordination panel ---------- */
     .coord-panel{
         position:sticky;
         top:26px;
@@ -366,7 +358,6 @@
         border-radius:8px;
     }
 
-    /* ---------- Calendars ---------- */
     .calendar-container{
         display:grid;
         grid-template-columns:repeat(auto-fit,minmax(310px,1fr));
@@ -439,7 +430,6 @@
         box-shadow:inset 0 1px 0 rgba(255,255,255,.5), inset 0 -2px 4px rgba(105,72,36,.35);
     }
 
-    /* ========== RUGGED PAPER DAY CELLS ========== */
     .calendar-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
 
     .day-cell{
@@ -591,7 +581,6 @@
     .user-mark.pending{ background:linear-gradient(180deg,#f7d271,#c9901c); }
     .user-mark.unavailable{ background:linear-gradient(180deg,#e8836f,#a8382a); }
 
-    /* ---------- Status selector ---------- */
     .status-selector{
         display:flex; gap:12px; justify-content:center;
         margin:4px 0; flex-wrap:wrap;
@@ -623,7 +612,7 @@
             0 0 20px rgba(255,224,175,.5);
     }
 
-    .status-btn.green.active{
+    .status-btn.green.active[data-status="available"]{
         box-shadow:
             inset 0 1px 0 rgba(255,224,175,.35),
             inset 0 2px 8px rgba(0,0,0,.25),
@@ -631,7 +620,7 @@
             0 0 25px rgba(63,191,111,.7),
             0 10px 20px rgba(0,0,0,.6);
     }
-    .status-btn.yellow.active{
+    .status-btn.yellow.active[data-status="pending"]{
         box-shadow:
             inset 0 1px 0 rgba(255,224,175,.35),
             inset 0 2px 8px rgba(0,0,0,.25),
@@ -639,7 +628,7 @@
             0 0 25px rgba(224,169,42,.7),
             0 10px 20px rgba(0,0,0,.6);
     }
-    .status-btn.red.active{
+    .status-btn.red.active[data-status="unavailable"]{
         box-shadow:
             inset 0 1px 0 rgba(255,224,175,.35),
             inset 0 2px 8px rgba(0,0,0,.25),
@@ -648,7 +637,6 @@
             0 10px 20px rgba(0,0,0,.6);
     }
 
-    /* ---------- Toast ---------- */
     .toast{
         position:fixed; left:50%; bottom:26px;
         transform:translate(-50%,20px);
@@ -668,7 +656,6 @@
     }
     .toast.show{ opacity:1; transform:translate(-50%,0); }
 
-    /* ---------- Footer ---------- */
     footer{
         text-align:center;
         margin-top:26px;
@@ -678,7 +665,6 @@
         color:rgba(232,205,158,.45);
     }
 
-    /* ---------- Responsive ---------- */
     @media (max-width:760px){
         body{ padding:18px 10px 60px; }
         .panel, .month-calendar, .coord-panel{ padding:18px 14px; border-width:3px; }
@@ -706,7 +692,6 @@
 
     <div class="connection-status loading" id="connectionStatus">Connecting&hellip;</div>
 
-    <!-- Roster -->
     <section class="panel">
         <div class="roster-label">Sign the Roster</div>
         <div class="user-input-group">
@@ -720,7 +705,6 @@
         </div>
     </section>
 
-    <!-- Main layout with coordination panel -->
     <div class="main-layout">
         <div class="left-column">
             <div class="legend">
@@ -732,10 +716,10 @@
             <div class="calendar-container" id="calendarContainer"></div>
 
             <div class="status-selector">
-                <button class="status-btn green" data-status="available" onclick="selectStatus('available')">
+                <button class="status-btn green active" data-status="available" onclick="selectStatus('available')">
                     <span class="gem available"></span> Available
                 </button>
-                <button class="status-btn yellow active" data-status="pending" onclick="selectStatus('pending')">
+                <button class="status-btn yellow" data-status="pending" onclick="selectStatus('pending')">
                     <span class="gem pending"></span> Pending
                 </button>
                 <button class="status-btn red" data-status="unavailable" onclick="selectStatus('unavailable')">
@@ -769,16 +753,15 @@
     <footer>Ten travellers &middot; Two moons &middot; One ledger</footer>
 </div>
 
-<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
 <script>
 /* ============================================================
-   FIREBASE CONFIGURATION — replace with your own values
+   FIREBASE CONFIGURATION — REPLACE THIS WITH YOUR VALUES
    ============================================================ */
 const FIREBASE_CONFIG = {
-    apiKey: "AIzaSyAgDYveaMGqh3B6ZR89s7OheYQ5X1wvP0A",
+  apiKey: "AIzaSyAgDYveaMGqh3B6ZR89s7OheYQ5X1wvP0A",
   authDomain: "availabilty-ledger.firebaseapp.com",
   projectId: "availabilty-ledger",
   storageBucket: "availabilty-ledger.firebasestorage.app",
@@ -802,13 +785,11 @@ if (FIREBASE_ENABLED) {
     }
 }
 
-/* ---------- State ---------- */
 let currentUser = null;
-let selectedStatus = 'pending';
+let selectedStatus = 'available';
 let allUserData = {};
 let unsubscribeListener = null;
 
-/* ---------- Helpers ---------- */
 function capitalize(str){ return str.charAt(0).toUpperCase() + str.slice(1); }
 
 function getData(){ return FIREBASE_ENABLED ? allUserData : getOfflineData(); }
@@ -842,7 +823,6 @@ function updateConnectionStatus(state){
                    : 'Connecting\u2026';
 }
 
-/* ---------- Boot ---------- */
 function init(){
     updateConnectionStatus(FIREBASE_ENABLED ? 'loading' : 'disconnected');
 
@@ -854,7 +834,6 @@ function init(){
     renderCoordPanel();
 }
 
-/* ---------- Firestore ---------- */
 function setupFirestoreListener(){
     unsubscribeListener = db.collection(COLLECTION).onSnapshot(
         (snapshot) => {
@@ -900,7 +879,6 @@ async function clearUserFirestore(){
     }
 }
 
-/* ---------- Roster ---------- */
 function addUser(){
     const input = document.getElementById('usernameInput');
     const username = input.value.trim().toLowerCase();
@@ -947,15 +925,13 @@ function removeUser(){
     renderCoordPanel();
 }
 
-/* ---------- Status ---------- */
 function selectStatus(status){
     selectedStatus = status;
     document.querySelectorAll('.status-btn').forEach(btn => btn.classList.remove('active'));
-    const target = document.querySelector('.status-btn.' + status);
+    const target = document.querySelector(`.status-btn[data-status="${status}"]`);
     if (target) target.classList.add('active');
 }
 
-/* ---------- Clear all marks ---------- */
 function confirmClearAll(){
     if (!currentUser){
         showToast('No active user.');
@@ -990,7 +966,6 @@ function clearAllCurrentUserMarks(){
     renderCoordPanel();
 }
 
-/* ---------- Marking dates ---------- */
 async function toggleDate(year, month, day){
     if (!currentUser){
         showToast('Sign the roster first \u2014 enter your name above.');
@@ -1014,9 +989,6 @@ async function toggleDate(year, month, day){
     renderCoordPanel();
 }
 
-/* ============================================================
-   COORDINATION PANEL
-   ============================================================ */
 function renderCoordPanel(){
     const data = getData();
     const users = Object.keys(data);
@@ -1066,13 +1038,16 @@ function renderCoordPanel(){
             else unmarked++;
         });
 
-        if (available.length === users.length){
+        // NEW LOGIC: Treat unmarked dates as available
+        const totalAvailable = available.length + unmarked;
+
+        if (totalAvailable === users.length){
             allAvailDates.push(dateKey);
             return;
         }
 
         const holdingOut = pending.concat(unavailable);
-        if (holdingOut.length === 1 && unmarked === 0){
+        if (holdingOut.length === 1){
             nearMatchDates.push({
                 date: dateKey,
                 missing: holdingOut[0],
@@ -1141,7 +1116,6 @@ function formatDateCard(dateKey, type, missing, status){
     `;
 }
 
-/* ---------- Calendar rendering ---------- */
 function getMonthDays(year, month){
     return {
         firstDay: new Date(year, month, 1).getDay(),
@@ -1250,7 +1224,6 @@ function renderCalendars(){
     });
 }
 
-/* ---------- Input handling ---------- */
 document.getElementById('usernameInput').addEventListener('keypress', function(e){
     if (e.key === 'Enter') addUser();
 });
