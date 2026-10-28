@@ -182,6 +182,14 @@
         background-image:linear-gradient(180deg,#7d6047,#4c3624);
     }
 
+    .btn-danger{
+        background-image:linear-gradient(180deg,#c96a5a,#8b3828);
+        color:#fff0e8;
+    }
+    .btn-danger:hover:not(:disabled){
+        box-shadow:inset 0 1px 0 rgba(255,235,220,.35), inset 0 -4px 8px rgba(0,0,0,.5), 0 9px 18px rgba(199,75,58,.4);
+    }
+
     .active-user-display{
         display:none;
         margin-top:16px;
@@ -193,13 +201,17 @@
         color:var(--ink);
         font-size:.95rem;
         box-shadow:inset 0 3px 10px rgba(66,42,20,.28);
-        display:none;
         align-items:center;
         flex-wrap:wrap;
         gap:10px;
     }
     .active-user-display.show{ display:flex; }
     .active-user-display strong{ font-size:1.15rem; letter-spacing:.03em; }
+
+    .clear-all-btn{
+        margin-left:auto;
+        opacity:.85;
+    }
 
     /* ---------- Legend ---------- */
     .legend{
@@ -230,7 +242,7 @@
     /* ---------- Layout with coordination panel ---------- */
     .main-layout{
         display:grid;
-        grid-template-columns: 1fr 340px;
+        grid-template-columns: 1fr 360px;
         gap:22px;
         align-items:start;
     }
@@ -239,7 +251,7 @@
         .main-layout{ grid-template-columns:1fr; }
     }
 
-    /* ---------- Left side: Calendars + Selection ---------- */
+    /* ---------- Left side ---------- */
     .left-column{ display:flex; flex-direction:column; gap:22px; }
 
     /* ---------- Right side: Coordination panel ---------- */
@@ -254,8 +266,17 @@
         text-transform:uppercase;
         color:var(--gold-bright);
         text-shadow:0 1px 0 rgba(43,24,12,.9), 0 3px 7px rgba(0,0,0,.6);
-        margin-bottom:18px;
+        margin-bottom:10px;
         text-align:center;
+    }
+
+    .coord-roster-note{
+        text-align:center;
+        font-size:.74rem;
+        font-style:italic;
+        letter-spacing:.04em;
+        color:rgba(232,205,158,.62);
+        margin-bottom:18px;
     }
 
     .coord-section{
@@ -264,7 +285,7 @@
         padding-top:18px;
     }
 
-    .coord-section:first-child{ border-top:none; }
+    .coord-section:first-of-type{ border-top:none; }
 
     .coord-title{
         display:flex; align-items:center; justify-content:center; gap:8px;
@@ -307,16 +328,26 @@
     }
 
     .coord-missing{
-        display:flex; flex-wrap:wrap; gap:6px; margin-top:4px;
+        display:flex; flex-wrap:wrap; gap:6px; margin-top:2px;
     }
 
     .coord-missing .missing-tag{
-        padding:3px 8px;
+        padding:3px 9px;
         font-size:.7rem;
-        background:rgba(201,75,58,.18);
-        border:1px solid rgba(201,75,58,.45);
+        letter-spacing:.05em;
+        text-transform:uppercase;
         border-radius:10px;
-        color:var(--crimson);
+        border:1px solid;
+    }
+    .coord-missing .missing-tag.pending{
+        background:rgba(224,169,42,.18);
+        border-color:rgba(163,117,16,.55);
+        color:#6f4d06;
+    }
+    .coord-missing .missing-tag.unavailable{
+        background:rgba(201,75,58,.18);
+        border-color:rgba(170,58,42,.55);
+        color:#8c2b1e;
     }
 
     .all-avail-card{ border-color:var(--emerald); box-shadow:inset 0 3px 8px rgba(47,156,92,.2); }
@@ -428,25 +459,19 @@
     /* Base rugged paper texture */
     .day-cell{
         background-color:var(--parch);
-        /* Paper base */
         background-image:
-            /* Random speckle/noise pattern */
             url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noise)" opacity="0.4"/></svg>'),
-            /* Ink bleed spots */
             radial-gradient(ellipse 30px 25px at 15% 20%, rgba(70,52,30,0.08), transparent 60%),
             radial-gradient(ellipse 25px 20px at 75% 65%, rgba(60,42,22,0.06), transparent 55%),
             radial-gradient(ellipse 20px 18px at 60% 15%, rgba(55,38,20,0.05), transparent 50%),
             radial-gradient(ellipse 35px 28px at 85% 85%, rgba(65,48,25,0.07), transparent 62%),
-            /* Fiber grain */
             repeating-linear-gradient(0deg,
                 transparent 0 1px,
                 rgba(139,119,88,0.03) 1px 2px,
                 transparent 2px 4px),
-            /* Warm yellowed base */
             linear-gradient(180deg, #f5e6c8 0%, #e8d4a8 50%, #dcc79c 100%);
         background-blend-mode: overlay, multiply, multiply, multiply, overlay, normal;
-        
-        /* Ragged edge effect */
+
         box-shadow:
             inset 0 0 8px rgba(139,115,75,0.35),
             inset 0 0 15px rgba(100,75,40,0.2),
@@ -461,13 +486,9 @@
         inset:-2px;
         border-radius:4px;
         background:
-            /* Corner darkening - top-left */
             radial-gradient(circle at 0 0, rgba(85,60,35,0.25) 0 25%, transparent 55%),
-            /* Corner darkening - top-right */
             radial-gradient(circle at 100% 0, rgba(85,60,35,0.2) 0 22%, transparent 50%),
-            /* Corner darkening - bottom-left */
             radial-gradient(circle at 0 100%, rgba(85,60,35,0.18) 0 20%, transparent 48%),
-            /* Corner darkening - bottom-right */
             radial-gradient(circle at 100% 100%, rgba(85,60,35,0.22) 0 24%, transparent 52%);
         pointer-events:none;
     }
@@ -478,13 +499,9 @@
         position:absolute;
         inset:0;
         background:
-            /* Small notch on top edge */
             radial-gradient(circle at 35% 0, rgba(65,45,25,0.15) 0 4px, transparent 4.5px),
-            /* Small notch on right edge */
             radial-gradient(circle at 100% 55%, rgba(65,45,25,0.12) 0 3px, transparent 3.5px),
-            /* Small notch on bottom */
             radial-gradient(circle at 70% 100%, rgba(65,45,25,0.1) 0 3px, transparent 3.5px),
-            /* Rough edge shadow */
             linear-gradient(90deg,
                 rgba(100,75,40,0.15) 0 1px,
                 transparent 1px 2px,
@@ -493,7 +510,7 @@
         border-radius:4px;
     }
 
-    /* Hover state - lift effect */
+    /* Hover state */
     .day-cell:hover:not(.empty){
         transform:translateY(-2px) scale(1.03);
         border-color:var(--gold);
@@ -514,7 +531,7 @@
     }
     .day-cell.empty:hover{ transform:none; }
 
-    /* Status tints - overlay on paper texture */
+    /* Status tints */
     .day-cell.tint-available::before{
         content:"";
         position:absolute; inset:0;
@@ -582,7 +599,7 @@
     /* ---------- Status selector ---------- */
     .status-selector{
         display:flex; gap:12px; justify-content:center;
-        margin:24px 0 4px; flex-wrap:wrap;
+        margin:4px 0; flex-wrap:wrap;
     }
 
     .status-btn{
@@ -593,7 +610,7 @@
         text-transform:uppercase;
         color:#ffeecb;
         cursor:pointer;
-        border:2px solid #33200f;
+        border:3px solid #33200f;
         border-radius:9px;
         background-image:linear-gradient(180deg,#7d5231,#4f3119);
         box-shadow:inset 0 1px 0 rgba(255,224,175,.28), 0 5px 12px rgba(0,0,0,.45);
@@ -603,34 +620,38 @@
 
     .status-btn.active{
         opacity:1;
-        transform:translateY(-2px);
-    }
-    .status-btn.green.active{ box-shadow:inset 0 1px 0 rgba(255,224,175,.3), 0 0 0 2px rgba(127,224,162,.85), 0 0 18px rgba(63,191,111,.6); }
-    .status-btn.yellow.active{ box-shadow:inset 0 1px 0 rgba(255,224,175,.3), 0 0 0 2px rgba(247,210,113,.9), 0 0 18px rgba(224,169,42,.6); }
-    .status-btn.red.active{ box-shadow:inset 0 1px 0 rgba(255,224,175,.3), 0 0 0 2px rgba(233,131,111,.9), 0 0 18px rgba(201,75,58,.6); }
-
-    /* ---------- Selection list ---------- */
-    .selection-info{ text-align:center; }
-
-    .selection-info h3{
-        font-size:.95rem; letter-spacing:.14em; text-transform:uppercase;
-        color:rgba(238,213,168,.85);
-        margin-bottom:16px;
+        transform:translateY(-3px);
+        box-shadow:
+            inset 0 1px 0 rgba(255,224,175,.35),
+            inset 0 2px 8px rgba(0,0,0,.25),
+            0 10px 20px rgba(0,0,0,.6),
+            0 0 20px rgba(255,224,175,.5);
     }
 
-    .selection-dates{ display:flex; flex-wrap:wrap; gap:9px; justify-content:center; }
-
-    .selection-date{
-        padding:7px 14px;
-        font-size:.82rem;
-        color:var(--ink);
-        border-radius:6px;
-        border:1px solid #8a6a3f;
-        background-image:linear-gradient(180deg,#f1e5c8,#dcc79c);
-        box-shadow:inset 0 1px 0 rgba(255,255,255,.55), 0 3px 8px rgba(0,0,0,.35);
+    .status-btn.green.active{
+        box-shadow:
+            inset 0 1px 0 rgba(255,224,175,.35),
+            inset 0 2px 8px rgba(0,0,0,.25),
+            0 0 0 3px rgba(127,224,162,.9),
+            0 0 25px rgba(63,191,111,.7),
+            0 10px 20px rgba(0,0,0,.6);
     }
-
-    .empty-note{ color:rgba(232,205,158,.6); font-style:italic; font-size:.9rem; }
+    .status-btn.yellow.active{
+        box-shadow:
+            inset 0 1px 0 rgba(255,224,175,.35),
+            inset 0 2px 8px rgba(0,0,0,.25),
+            0 0 0 3px rgba(247,210,113,.95),
+            0 0 25px rgba(224,169,42,.7),
+            0 10px 20px rgba(0,0,0,.6);
+    }
+    .status-btn.red.active{
+        box-shadow:
+            inset 0 1px 0 rgba(255,224,175,.35),
+            inset 0 2px 8px rgba(0,0,0,.25),
+            0 0 0 3px rgba(233,131,111,.95),
+            0 0 25px rgba(201,75,58,.7),
+            0 10px 20px rgba(0,0,0,.6);
+    }
 
     /* ---------- Setup notice ---------- */
     .setup-notice{
@@ -696,6 +717,7 @@
         .status-btn{ padding:10px 16px; font-size:.76rem; }
         .coord-date-card{ padding:10px 12px; }
         .coord-date-main{ font-size:.95rem; }
+        .clear-all-btn{ width:100%; margin-left:0; order:3; margin-top:8px; }
     }
 </style>
 </head>
@@ -733,24 +755,22 @@
         <div class="active-user-display" id="activeUserDisplay">
             <span>Marking as: <strong id="currentUserDisplay"></strong></span>
             <button class="btn btn-small" onclick="removeUser()">Switch Name</button>
+            <button class="btn btn-small btn-danger clear-all-btn" id="clearBtn" onclick="confirmClearAll()">&#9889; Clear My Marks</button>
         </div>
     </section>
 
     <!-- Main layout with coordination panel -->
     <div class="main-layout">
-        <!-- Left column: Calendars + Personal marks -->
+        <!-- Left column: Legend, calendars, status selector -->
         <div class="left-column">
-            <!-- Legend -->
             <div class="legend">
                 <div class="legend-item"><div class="gem available"></div><span>Available</span></div>
                 <div class="legend-item"><div class="gem pending"></div><span>Pending</span></div>
                 <div class="legend-item"><div class="gem unavailable"></div><span>Not Available</span></div>
             </div>
 
-            <!-- Calendars -->
             <div class="calendar-container" id="calendarContainer"></div>
 
-            <!-- Status selector -->
             <div class="status-selector">
                 <button class="status-btn green" data-status="available" onclick="selectStatus('available')">
                     <span class="gem available"></span> Available
@@ -762,18 +782,13 @@
                     <span class="gem unavailable"></span> Not Available
                 </button>
             </div>
-
-            <!-- Your Selected Dates -->
-            <section class="panel selection-info" id="selectionInfo" style="display:none;">
-                <h3>Your Upcoming Marks</h3>
-                <div class="selection-dates" id="selectionDates"></div>
-            </section>
         </div>
 
         <!-- Right column: Coordination panel -->
         <aside class="panel coord-panel">
             <div class="coord-header">&#9875; Common Ground &#9875;</div>
-            
+            <div class="coord-roster-note" id="coordRosterNote">&nbsp;</div>
+
             <!-- All Available section -->
             <div class="coord-section" id="allAvailSection">
                 <div class="coord-title">
@@ -806,12 +821,12 @@
    FIREBASE CONFIGURATION — replace with your own values
    ============================================================ */
 const FIREBASE_CONFIG = {
-    apiKey: "AIzaSyAgDYveaMGqh3B6ZR89s7OheYQ5X1wvP0A",
-    authDomain: "availabilty-ledger.firebaseapp.com",
-    projectId: "availabilty-ledger",
-    storageBucket: "availabilty-ledger.firebasestorage.app",
-    messagingSenderId: "745008682517",
-    appId: "1:745008682517:web:8ad4889eb28110cc3e201c"
+    apiKey: "YOUR_API_KEY_HERE",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
 };
 
 const FIREBASE_ENABLED = typeof firebase !== 'undefined' &&
@@ -881,8 +896,6 @@ function init(){
 
     renderCalendars();
     renderCoordPanel();
-    updateSelectionDisplay();
-    setTimeout(() => document.getElementById('loadingOverlay')?.remove(), 250);
 }
 
 /* ---------- Firestore ---------- */
@@ -897,7 +910,6 @@ function setupFirestoreListener(){
             updateConnectionStatus('connected');
             renderCalendars();
             renderCoordPanel();
-            if (currentUser) updateSelectionDisplay();
         },
         (error) => {
             console.error('Ledger listen error:', error);
@@ -907,17 +919,28 @@ function setupFirestoreListener(){
     );
 }
 
-async function writeFirestore(dateKey){
+async function writeFirestore(dateKey, status){
     if (!db || !currentUser) return;
-    
+
     try {
         await db.collection(COLLECTION).doc(currentUser).set({
-            markings: { [dateKey]: selectedStatus },
+            markings: { [dateKey]: status },
             lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
     } catch (error) {
         console.error('Ledger write failed:', error);
         showToast('Could not save that mark. Check your Firestore rules.');
+    }
+}
+
+async function clearUserFirestore(){
+    if (!db || !currentUser) return;
+
+    try {
+        await db.collection(COLLECTION).doc(currentUser).delete();
+    } catch (error) {
+        console.error('Ledger clear failed:', error);
+        showToast('Could not clear your marks. Try again.');
     }
 }
 
@@ -949,27 +972,23 @@ function addUser(){
 
     document.getElementById('activeUserDisplay').classList.add('show');
     document.getElementById('currentUserDisplay').textContent = capitalize(username);
-    document.getElementById('selectionInfo').style.display = 'block';
     input.value = '';
     input.disabled = true;
     document.getElementById('addUserBtn').disabled = true;
 
     renderCalendars();
     renderCoordPanel();
-    updateSelectionDisplay();
 }
 
 function removeUser(){
     currentUser = null;
     document.getElementById('activeUserDisplay').classList.remove('show');
-    document.getElementById('selectionInfo').style.display = 'none';
     const input = document.getElementById('usernameInput');
     input.disabled = false;
     document.getElementById('addUserBtn').disabled = false;
     input.focus();
     renderCalendars();
     renderCoordPanel();
-    updateSelectionDisplay();
 }
 
 /* ---------- Status ---------- */
@@ -978,6 +997,41 @@ function selectStatus(status){
     document.querySelectorAll('.status-btn').forEach(btn => btn.classList.remove('active'));
     const target = document.querySelector('.status-btn.' + status);
     if (target) target.classList.add('active');
+}
+
+/* ---------- Clear all marks ---------- */
+function confirmClearAll(){
+    if (!currentUser){
+        showToast('No active user.');
+        return;
+    }
+
+    const data = getData();
+    const userMarks = data[currentUser] || {};
+    const markCount = Object.keys(userMarks).length;
+
+    if (markCount === 0){
+        showToast('You have no marks to clear.');
+        return;
+    }
+
+    if (confirm(`This will delete all ${markCount} of your date marks. Continue?`)){
+        clearAllCurrentUserMarks();
+        showToast('Your marks have been cleared.');
+    }
+}
+
+function clearAllCurrentUserMarks(){
+    if (FIREBASE_ENABLED){
+        clearUserFirestore();
+    } else {
+        const offline = getOfflineData();
+        delete offline[currentUser];
+        saveOfflineData(offline);
+    }
+
+    renderCalendars();
+    renderCoordPanel();
 }
 
 /* ---------- Marking dates ---------- */
@@ -992,7 +1046,7 @@ async function toggleDate(year, month, day){
                     String(day).padStart(2, '0');
 
     if (FIREBASE_ENABLED){
-        await writeFirestore(dateKey);
+        await writeFirestore(dateKey, selectedStatus);
     } else {
         const data = getOfflineData();
         if (!data[currentUser]) data[currentUser] = {};
@@ -1002,34 +1056,44 @@ async function toggleDate(year, month, day){
 
     renderCalendars();
     renderCoordPanel();
-    updateSelectionDisplay();
 }
 
-/* ---------- COORDINATION PANEL LOGIC ========== */
+/* ============================================================
+   COORDINATION PANEL
+   ------------------------------------------------------------
+   All Available  : every registered traveller marked "available"
+   Nearly There   : exactly one traveller has NOT marked
+                    "available" (they are Pending or Not Available)
+   ============================================================ */
 function renderCoordPanel(){
     const data = getData();
     const users = Object.keys(data);
-    
-    // No users yet
+
+    const noteEl = document.getElementById('coordRosterNote');
+
     if (users.length === 0){
-        document.getElementById('allAvailList').innerHTML = 
+        noteEl.innerHTML = '&nbsp;';
+        document.getElementById('allAvailList').innerHTML =
             '<div class="empty-coord">No travellers on the roster yet</div>';
-        document.getElementById('nearMatchList').innerHTML = 
+        document.getElementById('nearMatchList').innerHTML =
             '<div class="empty-coord">Add travellers to see overlaps</div>';
         document.getElementById('allAvailCount').textContent = '0';
         document.getElementById('nearMatchCount').textContent = '0';
         return;
     }
 
+    // How many travellers have marked at least one date
+    const responders = users.filter(u => Object.keys(data[u] || {}).length > 0);
+    noteEl.textContent = responders.length + ' of ' + users.length +
+                         ' travellers have marked dates';
+
     const todayStr = new Date().toISOString().split('T')[0];
     const allDates = new Set();
-    
-    // Collect all dates from all users
+
     Object.values(data).forEach(userMarks => {
         Object.keys(userMarks).forEach(d => allDates.add(d));
     });
 
-    // Filter to future/upcoming dates only
     const upcomingDates = Array.from(allDates)
         .filter(d => d >= todayStr)
         .sort();
@@ -1038,70 +1102,68 @@ function renderCoordPanel(){
     const nearMatchDates = [];
 
     upcomingDates.forEach(dateKey => {
-        // Count how many are available, pending, or unavailable
-        let availableCount = 0;
-        let pendingCount = 0;
-        let unavailableUsers = [];
+        const available = [];
+        const pending = [];
+        const unavailable = [];
+        let unmarked = 0;
 
         users.forEach(user => {
-            const status = data[user][dateKey];
-            if (status === 'available') availableCount++;
-            else if (status === 'pending') pendingCount++;
-            else if (status === 'unavailable') unavailableUsers.push(user);
+            const status = data[user] ? data[user][dateKey] : undefined;
+            if (status === 'available') available.push(user);
+            else if (status === 'pending') pending.push(user);
+            else if (status === 'unavailable') unavailable.push(user);
+            else unmarked++;
         });
 
-        const totalMarked = availableCount + pendingCount + unavailableUsers.length;
-
-        // For coordination: we want dates where everyone has marked "available"
-        // OR dates where only one person hasn't marked "available" (others available/pending)
-        
-        if (availableCount === users.length){
-            // Everyone is available (all marked available)
+        // --- All Available: everyone has confirmed ---
+        if (available.length === users.length){
             allAvailDates.push(dateKey);
-        } else if (availableCount === users.length - 1 && unavailableUsers.length === 1){
-            // Exactly one person is unavailable, rest are available
+            return;
+        }
+
+        // --- Nearly There: everyone has responded, and exactly one
+        //     traveller is not available (pending OR unavailable) ---
+        const holdingOut = pending.concat(unavailable);
+        if (holdingOut.length === 1 && unmarked === 0){
             nearMatchDates.push({
                 date: dateKey,
-                missing: unavailableUsers
-            });
-        } else if (availableCount + pendingCount === users.length - 1 && unavailableUsers.length === 1){
-            // One unavailable, rest available or pending
-            nearMatchDates.push({
-                date: dateKey,
-                missing: unavailableUsers
+                missing: holdingOut[0],
+                status: pending.length === 1 ? 'pending' : 'unavailable'
             });
         }
     });
 
-    // Render All Available
+    // --- Render: All Available ---
     const allAvailList = document.getElementById('allAvailList');
     document.getElementById('allAvailCount').textContent = allAvailDates.length;
 
     if (allAvailDates.length === 0){
         allAvailList.innerHTML = '<div class="empty-coord">No dates with full availability yet</div>';
     } else {
-        allAvailList.innerHTML = allAvailDates.slice(0, 8).map(d => formatDateCard(d, 'all')).join('');
+        allAvailList.innerHTML = allAvailDates.slice(0, 10)
+            .map(d => formatDateCard(d, 'all'))
+            .join('');
     }
 
-    // Render Nearly There
+    // --- Render: Nearly There ---
     const nearMatchList = document.getElementById('nearMatchList');
     document.getElementById('nearMatchCount').textContent = nearMatchDates.length;
 
     if (nearMatchDates.length === 0){
-        nearMatchList.innerHTML = '<div class="empty-coord">No near-matches found</div>';
+        nearMatchList.innerHTML = '<div class="empty-coord">No dates with a single holdout yet</div>';
     } else {
-        nearMatchList.innerHTML = nearMatchDates.slice(0, 8).map(item => 
-            formatDateCard(item.date, 'near', item.missing)
-        ).join('');
+        nearMatchList.innerHTML = nearMatchDates.slice(0, 10)
+            .map(item => formatDateCard(item.date, 'near', item.missing, item.status))
+            .join('');
     }
 }
 
-function formatDateCard(dateKey, type, missing = []){
+function formatDateCard(dateKey, type, missing, status){
     const parts = dateKey.split('-');
     const asDate = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
     const formatted = asDate.toLocaleDateString('en-US', {
         weekday: 'short',
-        month: 'short', 
+        month: 'short',
         day: 'numeric',
         year: 'numeric'
     });
@@ -1113,15 +1175,24 @@ function formatDateCard(dateKey, type, missing = []){
                 <div class="coord-subtext">All hands present</div>
             </div>
         `;
-    } else {
-        const missingNames = missing.map(u => capitalize(u)).join(', ');
-        return `
-            <div class="coord-date-card near-match-card">
-                <div class="coord-date-main">${formatted}</div>
-                <div class="coord-subtext">${capitalize(missingNames)} unavailable</div>
-            </div>
-        `;
     }
+
+    const isPending = status === 'pending';
+    const subtext = isPending
+        ? 'Only ' + capitalize(missing) + ' has yet to confirm'
+        : 'Only ' + capitalize(missing) + ' cannot attend';
+    const tagLabel = isPending ? 'Pending' : 'Not available';
+    const tagClass = isPending ? 'pending' : 'unavailable';
+
+    return `
+        <div class="coord-date-card near-match-card">
+            <div class="coord-date-main">${formatted}</div>
+            <div class="coord-subtext">${subtext}</div>
+            <div class="coord-missing">
+                <span class="missing-tag ${tagClass}">${tagLabel}</span>
+            </div>
+        </div>
+    `;
 }
 
 /* ---------- Calendar rendering ---------- */
@@ -1192,7 +1263,6 @@ function renderCalendars(){
                             String(adjustedMonth + 1).padStart(2, '0') + '-' +
                             String(day).padStart(2, '0');
 
-            // Collect every traveller's mark for this date
             const marks = [];
             Object.keys(data).forEach(user => {
                 if (data[user] && data[user][dateKey]){
@@ -1200,7 +1270,6 @@ function renderCalendars(){
                 }
             });
 
-            // Overall tint: any refusal wins, then pending, then available
             if (marks.some(m => m.status === 'unavailable')){
                 cell.classList.add('tint-unavailable');
             } else if (marks.some(m => m.status === 'pending')){
@@ -1233,62 +1302,6 @@ function renderCalendars(){
         card.appendChild(grid);
         container.appendChild(card);
     });
-}
-
-/* ---------- Personal selection list ---------- */
-function updateSelectionDisplay(){
-    const container = document.getElementById('selectionDates');
-    container.innerHTML = '';
-
-    if (!currentUser){
-        container.innerHTML = '<p class="empty-note">Sign the roster to see your marks.</p>';
-        return;
-    }
-
-    const data = getData();
-    const userDates = data[currentUser] || {};
-    const keys = Object.keys(userDates).sort();
-
-    if (!keys.length){
-        container.innerHTML = '<p class="empty-note">No dates marked yet.</p>';
-        return;
-    }
-
-    const todayStr = new Date().toISOString().split('T')[0];
-    const upcoming = keys.filter(k => k >= todayStr);
-
-    if (!upcoming.length){
-        container.innerHTML = '<p class="empty-note">No upcoming dates marked.</p>';
-        return;
-    }
-
-    const colors = {
-        available: 'var(--emerald)',
-        pending: 'var(--amber)',
-        unavailable: 'var(--crimson)'
-    };
-
-    upcoming.slice(0, 12).forEach(key => {
-        const status = userDates[key];
-        const badge = document.createElement('div');
-        badge.className = 'selection-date';
-
-        const parts = key.split('-');
-        const asDate = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
-        badge.textContent = asDate.toLocaleDateString('en-US', {
-            month: 'short', day: 'numeric', year: 'numeric'
-        });
-        badge.style.borderLeft = '5px solid ' + colors[status];
-        badge.title = status;
-        container.appendChild(badge);
-    });
-
-    if (upcoming.length > 12){
-        const more = document.createElement('div');
-        more.className = 'selection-date';
-        more.textContent = '+' + (upcoming.length - 12) + ' more';
-        container.appendChild(more);
-    }
 }
 
 /* ---------- Input handling ---------- */
