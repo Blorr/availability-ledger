@@ -43,6 +43,92 @@
 
     .container{ max-width:1180px; margin:0 auto; }
 
+    /* Room Entry Screen Styles */
+    .room-entry-screen{
+        display:flex; flex-direction:column;
+        align-items:center; justify-content:center;
+        min-height:70vh;
+        text-align:center;
+    }
+
+    .room-card{
+        max-width:520px;
+        padding:32px;
+        border-radius:16px;
+        border:4px solid #33200f;
+        background:linear-gradient(180deg, #7d5231, #5a3820);
+        box-shadow:
+            inset 0 0 0 2px rgba(169,116,63,.85),
+            inset 0 0 26px rgba(0,0,0,.45),
+            0 14px 30px rgba(0,0,0,.55);
+    }
+
+    .room-card::before{
+        content:"";
+        position:absolute; inset:7px;
+        border:1px dashed rgba(230,192,120,.30);
+        border-radius:11px;
+        pointer-events:none;
+    }
+
+    .room-card::after{
+        content:"";
+        position:absolute; inset:0; border-radius:inherit;
+        pointer-events:none;
+        background-image:
+            radial-gradient(circle at 15px 15px, rgba(245,222,168,.9) 0 2.5px, rgba(0,0,0,.55) 2.5px 4.5px, transparent 4.5px),
+            radial-gradient(circle at calc(100% - 15px) 15px, rgba(245,222,168,.9) 0 2.5px, rgba(0,0,0,.55) 2.5px 4.5px, transparent 4.5px),
+            radial-gradient(circle at 15px calc(100% - 15px), rgba(245,222,168,.9) 0 2.5px, rgba(0,0,0,.55) 2.5px 4.5px, transparent 4.5px),
+            radial-gradient(circle at calc(100% - 15px) calc(100% - 15px), rgba(245,222,168,.9) 0 2.5px, rgba(0,0,0,.55) 2.5px 4.5px, transparent 4.5px);
+    }
+
+    .room-card h2{
+        font-size:1.6rem;
+        letter-spacing:.08em;
+        text-transform:uppercase;
+        color:var(--gold-bright);
+        margin-bottom:16px;
+        text-shadow:0 2px 0 rgba(43,24,12,.9);
+    }
+
+    .room-card p{
+        font-size:1rem;
+        color:rgba(232,205,158,.85);
+        margin-bottom:24px;
+        line-height:1.5;
+        position:relative; z-index:1;
+    }
+
+    .room-input{
+        width:100%;
+        padding:16px 20px;
+        font-family:inherit; font-size:1.1rem;
+        color:var(--ink);
+        background-color:var(--parch);
+        background-image:linear-gradient(180deg,#f1e5c8,#dcc79c);
+        border:2px solid #8a6a3f;
+        border-radius:9px;
+        box-shadow:inset 0 3px 8px rgba(66,42,20,.35);
+        margin-bottom:16px;
+        text-align:center;
+        text-transform:lowercase;
+        position:relative; z-index:1;
+    }
+    .room-input::placeholder{ color:rgba(67,44,21,.55); font-style:italic; }
+    .room-input:focus{
+        outline:none;
+        border-color:var(--gold);
+        box-shadow:inset 0 3px 8px rgba(66,42,20,.35), 0 0 0 3px rgba(214,171,96,.35);
+    }
+
+    .room-examples{
+        font-size:.8rem;
+        color:rgba(232,205,158,.6);
+        margin:12px 0;
+        font-style:italic;
+        position:relative; z-index:1;
+    }
+
     header{ text-align:center; margin-bottom:26px; }
 
     h1{
@@ -61,6 +147,19 @@
         font-size:.98rem;
         font-style:italic;
         color:rgba(232,205,158,.78);
+    }
+
+    .room-indicator{
+        display:inline-block;
+        margin-top:12px;
+        padding:6px 16px;
+        border-radius:18px;
+        font-size:.78rem;
+        letter-spacing:.08em;
+        text-transform:uppercase;
+        background:rgba(214,171,96,.2);
+        border:2px solid rgba(214,171,96,.4);
+        color:var(--gold-bright);
     }
 
     .ornament{
@@ -167,11 +266,18 @@
             inset 0 -4px 8px rgba(0,0,0,.42),
             0 5px 12px rgba(0,0,0,.5);
         transition:transform .15s, box-shadow .15s, filter .15s;
+        position:relative; z-index:1;
     }
     .btn:hover:not(:disabled){ transform:translateY(-2px); filter:brightness(1.1);
         box-shadow:inset 0 1px 0 rgba(255,224,175,.45), inset 0 -4px 8px rgba(0,0,0,.42), 0 9px 18px rgba(0,0,0,.55); }
     .btn:active:not(:disabled){ transform:translateY(0); }
     .btn:disabled{ opacity:.45; cursor:not-allowed; }
+
+    .btn-primary{
+        font-size:1.1rem;
+        padding:16px 40px;
+        background-image:linear-gradient(180deg,#94643a,#5c3a20);
+    }
 
     .btn-small{
         padding:6px 14px; font-size:.76rem;
@@ -207,6 +313,24 @@
     .clear-all-btn{
         margin-left:auto;
         opacity:.85;
+    }
+
+    .share-room{
+        margin-top:12px;
+        padding:10px 14px;
+        border-radius:10px;
+        border:2px solid rgba(214,171,96,.4);
+        background:rgba(214,171,96,.12);
+        color:rgba(238,213,168,.9);
+        font-size:.8rem;
+        display:flex; align-items:center; gap:8px;
+        flex-wrap:wrap;
+        position:relative; z-index:1;
+    }
+    .share-room code{
+        flex:1;
+        word-break:break-all;
+        color:var(--gold-bright);
     }
 
     .legend{
@@ -470,8 +594,7 @@
 
     .day-cell::before{
         content:"";
-        position:absolute;
-        inset:-2px;
+        position:absolute; inset:-2px;
         border-radius:4px;
         background:
             radial-gradient(circle at 0 0, rgba(85,60,35,0.25) 0 25%, transparent 55%),
@@ -678,15 +801,32 @@
         .coord-date-card{ padding:10px 12px; }
         .coord-date-main{ font-size:.95rem; }
         .clear-all-btn{ width:100%; margin-left:0; order:3; margin-top:8px; }
+        .room-card{ padding:24px; }
+        .room-input{ font-size:1rem; padding:14px; }
     }
 </style>
 </head>
 <body>
 
-<div class="container">
+<!-- Room Entry Screen -->
+<div class="container" id="roomEntryScreen">
+    <div class="room-entry-screen">
+        <div class="room-card">
+            <h2>&#9876; Join or Create a Room &#9876;</h2>
+            <p>Enter a room name to create or join an availability ledger.<br>Your group shares this ledger exclusively.</p>
+            <input type="text" class="room-input" id="roomNameInput" placeholder="e.g., goblins-table, campaign-1, friday-night" maxlength="30">
+            <div class="room-examples">Examples: <code>table-four</code> &middot; <code>dragon-party</code> &middot; <code>vance-squad</code></div>
+            <button class="btn btn-primary" onclick="enterRoom()">Enter Room</button>
+        </div>
+    </div>
+</div>
+
+<!-- Main Ledger Screen (hidden initially) -->
+<div class="container" id="mainScreen" style="display:none;">
     <header>
         <h1>&#9876; The Availability Ledger &#9876;</h1>
         <p class="subtitle">Every traveller sees the same ledger, in real time.</p>
+        <div class="room-indicator">Room: <span id="currentRoomDisplay"></span></div>
         <div class="ornament"><span></span><b>&#10022;</b><span></span></div>
     </header>
 
@@ -702,6 +842,11 @@
             <span>Marking as: <strong id="currentUserDisplay"></strong></span>
             <button class="btn btn-small" onclick="removeUser()">Switch Name</button>
             <button class="btn btn-small btn-danger clear-all-btn" id="clearBtn" onclick="confirmClearAll()">&#9889; Clear My Marks</button>
+        </div>
+        <div class="share-room">
+            <span>&#128279; Room link: </span>
+            <code id="roomLink"></code>
+            <button class="btn btn-small" onclick="copyRoomLink()">&#128203; Copy</button>
         </div>
     </section>
 
@@ -750,57 +895,73 @@
         </aside>
     </div>
 
-    <footer>Four travellers &middot; Two moons &middot; One ledger</footer>
+    <footer>Ten travellers &middot; Two moons &middot; One ledger</footer>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
 <script>
-/* ============================================================
-   FIREBASE CONFIGURATION — REPLACE THIS WITH YOUR VALUES
-   ============================================================ */
 const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyAgDYveaMGqh3B6ZR89s7OheYQ5X1wvP0A",
-  authDomain: "availabilty-ledger.firebaseapp.com",
-  projectId: "availabilty-ledger",
-  storageBucket: "availabilty-ledger.firebasestorage.app",
-  messagingSenderId: "745008682517",
-  appId: "1:745008682517:web:8ad4889eb28110cc3e201c"
+    apiKey: "AIzaSyAgDYveaMGqh3B6ZR89s7OheYQ5X1wvP0A",
+    authDomain: "availabilty-ledger.firebaseapp.com",
+    projectId: "availabilty-ledger",
+    storageBucket: "availabilty-ledger.firebasestorage.app",
+    messagingSenderId: "745008682517",
+    appId: "1:745008682517:web:8ad4889eb28110cc3e201c"
 };
 
 const FIREBASE_ENABLED = typeof firebase !== 'undefined' &&
                          FIREBASE_CONFIG.apiKey !== "YOUR_API_KEY_HERE";
 
 const MAX_USERS = 10;
-const COLLECTION = 'availability';
+const COLLECTION_ROOT = 'rooms';
 
 let db = null;
-if (FIREBASE_ENABLED) {
-    try {
-        firebase.initializeApp(FIREBASE_CONFIG);
-        db = firebase.firestore();
-    } catch (err) {
-        console.error('Firebase init failed:', err);
-    }
-}
-
+let currentRoom = null;
 let currentUser = null;
 let selectedStatus = 'available';
 let allUserData = {};
 let unsubscribeListener = null;
+
+// Check URL for room, otherwise show entry screen
+function getRoomFromURL(){
+    const hash = window.location.hash.slice(1);
+    if (hash && /^[a-z0-9\-]{3,30}$/.test(hash)){
+        return hash;
+    }
+    return null;
+}
+
+function setRoomInURL(roomId){
+    window.location.hash = roomId;
+}
+
+function validateRoomName(name){
+    const cleaned = name.trim().toLowerCase().replace(/[^a-z0-9\-]/g, '');
+    if (cleaned.length < 3 || cleaned.length > 30){
+        return { valid: false, error: 'Room name must be 3-30 characters, letters/numbers/hyphens only' };
+    }
+    if (!/^[a-z0-9]/.test(cleaned) || !/[a-z0-9]$/.test(cleaned)){
+        return { valid: false, error: 'Room name must start and end with a letter or number' };
+    }
+    if (/--/.test(cleaned)){
+        return { valid: false, error: 'Room name cannot contain consecutive hyphens' };
+    }
+    return { valid: true, name: cleaned };
+}
 
 function capitalize(str){ return str.charAt(0).toUpperCase() + str.slice(1); }
 
 function getData(){ return FIREBASE_ENABLED ? allUserData : getOfflineData(); }
 
 function getOfflineData(){
-    try { return JSON.parse(localStorage.getItem('availabilityOfflineData')) || {}; }
+    try { return JSON.parse(localStorage.getItem('availabilityOfflineData_' + currentRoom)) || {}; }
     catch(e){ return {}; }
 }
 
 function saveOfflineData(data){
-    localStorage.setItem('availabilityOfflineData', JSON.stringify(data));
+    localStorage.setItem('availabilityOfflineData_' + currentRoom, JSON.stringify(data));
 }
 
 function showToast(message){
@@ -823,7 +984,37 @@ function updateConnectionStatus(state){
                    : 'Connecting\u2026';
 }
 
+function enterRoom(){
+    const input = document.getElementById('roomNameInput');
+    const validation = validateRoomName(input.value);
+    
+    if (!validation.valid){
+        alert(validation.error);
+        return;
+    }
+
+    const roomId = validation.name;
+    setRoomInURL(roomId);
+    window.location.reload();
+}
+
 function init(){
+    const roomId = getRoomFromURL();
+
+    if (!roomId){
+        // Show room entry screen
+        document.getElementById('roomEntryScreen').style.display = 'flex';
+        document.getElementById('mainScreen').style.display = 'none';
+        return;
+    }
+
+    // In a room, show main interface
+    currentRoom = roomId;
+    document.getElementById('roomEntryScreen').style.display = 'none';
+    document.getElementById('mainScreen').style.display = 'block';
+    document.getElementById('currentRoomDisplay').textContent = roomId;
+    document.getElementById('roomLink').textContent = window.location.href;
+
     updateConnectionStatus(FIREBASE_ENABLED ? 'loading' : 'disconnected');
 
     if (FIREBASE_ENABLED && db) {
@@ -835,7 +1026,8 @@ function init(){
 }
 
 function setupFirestoreListener(){
-    unsubscribeListener = db.collection(COLLECTION).onSnapshot(
+    const collectionPath = `${COLLECTION_ROOT}/${currentRoom}/availability`;
+    unsubscribeListener = db.collection(collectionPath).onSnapshot(
         (snapshot) => {
             allUserData = {};
             snapshot.forEach(doc => {
@@ -858,7 +1050,8 @@ async function writeFirestore(dateKey, status){
     if (!db || !currentUser) return;
 
     try {
-        await db.collection(COLLECTION).doc(currentUser).set({
+        const collectionPath = `${COLLECTION_ROOT}/${currentRoom}/availability`;
+        await db.collection(collectionPath).doc(currentUser).set({
             markings: { [dateKey]: status },
             lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
@@ -872,7 +1065,8 @@ async function clearUserFirestore(){
     if (!db || !currentUser) return;
 
     try {
-        await db.collection(COLLECTION).doc(currentUser).delete();
+        const collectionPath = `${COLLECTION_ROOT}/${currentRoom}/availability`;
+        await db.collection(collectionPath).doc(currentUser).delete();
     } catch (error) {
         console.error('Ledger clear failed:', error);
         showToast('Could not clear your marks. Try again.');
@@ -989,6 +1183,14 @@ async function toggleDate(year, month, day){
     renderCoordPanel();
 }
 
+function copyRoomLink(){
+    navigator.clipboard.writeText(window.location.href).then(() => {
+        showToast('Room link copied to clipboard!');
+    }).catch(() => {
+        showToast('Could not copy link. Select and copy manually.');
+    });
+}
+
 function renderCoordPanel(){
     const data = getData();
     const users = Object.keys(data);
@@ -1038,7 +1240,7 @@ function renderCoordPanel(){
             else unmarked++;
         });
 
-        // NEW LOGIC: Treat unmarked dates as available
+        // Treat unmarked dates as available
         const totalAvailable = available.length + unmarked;
 
         if (totalAvailable === users.length){
@@ -1122,6 +1324,7 @@ function getMonthDays(year, month){
         daysInMonth: new Date(year, month + 1, 0).getDate()
     };
 }
+
 function renderCalendars(){
     const container = document.getElementById('calendarContainer');
     container.innerHTML = '';
@@ -1223,9 +1426,23 @@ function renderCalendars(){
     });
 }
 
+document.getElementById('roomNameInput').addEventListener('keypress', function(e){
+    if (e.key === 'Enter') enterRoom();
+});
+
 document.getElementById('usernameInput').addEventListener('keypress', function(e){
     if (e.key === 'Enter') addUser();
 });
+
+// Initialize Firebase
+if (FIREBASE_ENABLED) {
+    try {
+        firebase.initializeApp(FIREBASE_CONFIG);
+        db = firebase.firestore();
+    } catch (err) {
+        console.error('Firebase init failed:', err);
+    }
+}
 
 init();
 </script>
